@@ -1,6 +1,11 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 import Image from "next/image";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <main className="overflow-x-hidden bg-white text-black">
 
@@ -19,9 +24,12 @@ export default function Home() {
           <a href="#">ABOUT</a>
         </div>
 
-        <button className="border border-black px-3 py-2 text-xs transition hover:bg-black hover:text-white sm:px-5 sm:text-sm">
-          RUN AUDIT
-        </button>
+      <button
+  onClick={() => router.push("/audit")}
+  className="border border-black px-3 py-2 text-xs transition hover:bg-black hover:text-white sm:px-5 sm:text-sm"
+>
+  RUN AUDIT
+</button>
       </nav>
 
       {/* Hero Grid */}
