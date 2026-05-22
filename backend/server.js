@@ -14,24 +14,10 @@ app.get("/", (req, res) => {
   });
 });
 
-app.post("/api/audit", (req, res) => {
+/* Routes */
+const auditRoutes = require("./routes/auditRoutes");
 
-  const { tool, plan, spend, seats } = req.body;
-
-  const yearlySpend = spend * 12;
-
-  const estimatedSavings = Math.floor(yearlySpend * 0.25);
-
-  res.json({
-    success: true,
-    tool,
-    plan,
-    yearlySpend,
-    estimatedSavings,
-    recommendation:
-      "Optimize unused subscriptions and downgrade unnecessary seats.",
-  });
-});
+app.use("/api/audit", auditRoutes);
 
 const PORT = process.env.PORT || 5000;
 
