@@ -2,9 +2,52 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function AuditPage() {
   const router = useRouter();
+  const [tool, setTool] = useState("ChatGPT");
+const [plan, setPlan] = useState("Pro");
+const [spend, setSpend] = useState("");
+const [seats, setSeats] = useState("");
+const [loading, setLoading] = useState(false);
+const [result, setResult] = useState<any>(null);
+
+const generateAudit = async () => {
+  try {
+    setLoading(true);
+
+    const response = await fetch(
+      "https://spendlens-frdn.onrender.com/api/audit",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tools: [
+            {
+              tool,
+              plan,
+              spend,
+              seats,
+            },
+          ],
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    setResult(data.data);
+
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <main className="min-h-screen bg-[#f5f1eb] text-black">
 
@@ -112,7 +155,11 @@ export default function AuditPage() {
               AI Tool
             </label>
 
-            <select className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none">
+          <select
+  value={tool}
+  onChange={(e) => setTool(e.target.value)}
+  className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+>
 
               <option>ChatGPT</option>
               <option>Claude</option>
@@ -128,7 +175,11 @@ export default function AuditPage() {
               Current Plan
             </label>
 
-            <select className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none">
+<select
+  value={plan}
+  onChange={(e) => setPlan(e.target.value)}
+  className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+>
 
               <option>Pro</option>
               <option>Team</option>
@@ -146,6 +197,8 @@ export default function AuditPage() {
             <input
               type="number"
               placeholder="$200"
+              value={spend}
+              onChange={(e) => setSpend(e.target.value)}
               className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
             />
           </div>
@@ -159,14 +212,65 @@ export default function AuditPage() {
             <input
               type="number"
               placeholder="5"
+              value={seats}
+              onChange={(e) => setSeats(e.target.value)}
               className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
             />
           </div>
         </div>
 
-        <button className="mt-10 border border-black px-8 py-4 text-xs uppercase tracking-[0.25em] transition hover:bg-black hover:text-white sm:text-sm">
-          Generate Audit
+    <button
+  onClick={generateAudit}
+  disabled={loading}
+  className="mt-10 border border-black px-8 py-4 text-xs uppercase tracking-[0.25em] transition hover:bg-black hover:text-white disabled:opacity-50 sm:text-sm"
+>
+  {loading ? "Generating..." : "Generate Audit"}
         </button>
+
+        {result && (
+  <div className="mt-16 grid gap-6 lg:grid-cols-3">
+
+    <div className="border border-black p-6">
+      <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+        Current Cost
+      </p>
+
+      <h3 className="bebas mt-4 text-6xl">
+        ${result.currentCost}
+      </h3>
+    </div>
+
+    <div className="border border-black p-6">
+      <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+        Potential Savings
+      </p>
+
+      <h3 className="bebas mt-4 text-6xl text-green-600">
+        ${result.savings}
+      </h3>
+    </div>
+
+    <div className="border border-black p-6">
+      <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+        Recommendation
+      </p>
+
+      <div className="mt-4 space-y-3">
+        {result.recommendations.map((item: any, index: number) => (
+          <div key={index}>
+            <p className="font-medium">{item.tool}</p>
+            <p className="text-sm text-gray-600">
+              {item.action}
+            </p>
+            <p className="text-sm text-green-600">
+              {item.save}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
       </section>
     </main>
   );
