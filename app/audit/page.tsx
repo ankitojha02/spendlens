@@ -6,12 +6,43 @@ import { useState } from "react";
 
 export default function AuditPage() {
   const router = useRouter();
-  const [tool, setTool] = useState("ChatGPT");
-  const [plan, setPlan] = useState("Pro");
-  const [spend, setSpend] = useState("");
-  const [seats, setSeats] = useState("");
+ const [tools, setTools] = useState([
+  {
+    tool: "ChatGPT",
+    plan: "Plus",
+    spend: "",
+    seats: "",
+  },
+]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+
+  const updateTool = (
+  index: number,
+  field: string,
+  value: string
+) => {
+  const updated = [...tools];
+
+  updated[index] = {
+    ...updated[index],
+    [field]: value,
+  };
+
+  setTools(updated);
+};
+
+const addTool = () => {
+  setTools([
+    ...tools,
+    {
+      tool: "ChatGPT",
+      plan: "Plus",
+      spend: "",
+      seats: "",
+    },
+  ]);
+};
 
   const generateAudit = async () => {
     try {
@@ -25,17 +56,13 @@ export default function AuditPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            tools: [
-              {
-                tool,
-                plan,
-                spend,
-                seats,
-              },
-            ],
+           tools,
           }),
         },
       );
+
+
+
 
       const data = await response.json();
 
@@ -135,73 +162,115 @@ export default function AuditPage() {
         </div>
 
         {/* Form */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Tool */}
-          <div>
-            <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-              AI Tool
-            </label>
+       <div className="space-y-10">
 
-            <select
-              value={tool}
-              onChange={(e) => setTool(e.target.value)}
-              className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-            >
-              <option>ChatGPT</option>
-              <option>Claude</option>
-              <option>Cursor</option>
-              <option>GitHub Copilot</option>
-            </select>
-          </div>
+  {tools.map((item, index) => (
+    <div
+      key={index}
+      className="border border-black p-6"
+    >
 
-          {/* Plan */}
-          <div>
-            <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-              Current Plan
-            </label>
+      <div className="mb-6 flex items-center justify-between">
 
-            <select
-              value={plan}
-              onChange={(e) => setPlan(e.target.value)}
-              className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-            >
-              <option>Pro</option>
-              <option>Team</option>
-              <option>Enterprise</option>
-            </select>
-          </div>
+        <h3 className="bebas text-3xl tracking-[0.08em]">
+          TOOL {index + 1}
+        </h3>
+      </div>
 
-          {/* Spend */}
-          <div>
-            <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-              Monthly Spend
-            </label>
+      <div className="grid gap-6 lg:grid-cols-2">
 
-            <input
-              type="number"
-              placeholder="$200"
-              value={spend}
-              onChange={(e) => setSpend(e.target.value)}
-              className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-            />
-          </div>
+        {/* Tool */}
+        <div>
+          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+            AI Tool
+          </label>
 
-          {/* Seats */}
-          <div>
-            <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-              Team Seats
-            </label>
-
-            <input
-              type="number"
-              placeholder="5"
-              value={seats}
-              onChange={(e) => setSeats(e.target.value)}
-              className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-            />
-          </div>
+          <select
+            value={item.tool}
+            onChange={(e) =>
+              updateTool(index, "tool", e.target.value)
+            }
+            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+          >
+            <option>ChatGPT</option>
+            <option>Claude</option>
+            <option>Cursor</option>
+            <option>GitHub Copilot</option>
+            <option>Gemini</option>
+            <option>Anthropic API</option>
+            <option>OpenAI API</option>
+            <option>v0</option>
+          </select>
         </div>
 
+        {/* Plan */}
+        <div>
+          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+            Current Plan
+          </label>
+
+          <select
+            value={item.plan}
+            onChange={(e) =>
+              updateTool(index, "plan", e.target.value)
+            }
+            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+          >
+            <option>Free</option>
+            <option>Plus</option>
+            <option>Pro</option>
+            <option>Team</option>
+            <option>Business</option>
+            <option>Enterprise</option>
+            <option>API Direct</option>
+          </select>
+        </div>
+
+        {/* Spend */}
+        <div>
+          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+            Monthly Spend
+          </label>
+
+          <input
+            type="number"
+            value={item.spend}
+            onChange={(e) =>
+              updateTool(index, "spend", e.target.value)
+            }
+            placeholder="$200"
+            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+          />
+        </div>
+
+        {/* Seats */}
+        <div>
+          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+            Team Seats
+          </label>
+
+          <input
+            type="number"
+            value={item.seats}
+            onChange={(e) =>
+              updateTool(index, "seats", e.target.value)
+            }
+            placeholder="5"
+            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+          />
+        </div>
+      </div>
+    </div>
+  ))}
+
+  {/* Add Tool */}
+  <button
+    onClick={addTool}
+    className="border border-black px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:bg-black hover:text-white"
+  >
+    + Add Tool
+  </button>
+</div>
         <button
           onClick={generateAudit}
           disabled={loading}
