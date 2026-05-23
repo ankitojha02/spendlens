@@ -91,6 +91,8 @@ const addTool = () => {
           },
           body: JSON.stringify({
            tools,
+           teamSize,
+           useCase,
           }),
         },
       );

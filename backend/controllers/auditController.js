@@ -116,25 +116,24 @@ else {
       });
     });
 
-    const annualWaste = totalSavings * 12;
+   const annualWaste = totalSavings * 12;
 
-    const summary = await generateSummary({
+let efficiencyScore = "A";
+
+if (totalSavings > 1000) {
+  efficiencyScore = "D";
+} else if (totalSavings > 500) {
+  efficiencyScore = "C";
+} else if (totalSavings > 200) {
+  efficiencyScore = "B";
+}
+
+const summary = await generateSummary({
   currentCost,
   savings: Math.round(totalSavings),
   annualWaste: Math.round(annualWaste),
   efficiencyScore,
 });
-
-    let efficiencyScore = "A";
-
-    if (totalSavings > 1000) {
-      efficiencyScore = "D";
-    } else if (totalSavings > 500) {
-      efficiencyScore = "C";
-    } else if (totalSavings > 200) {
-      efficiencyScore = "B";
-    }
-
     return res.status(200).json({
       success: true,
 
