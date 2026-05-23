@@ -1,23 +1,12 @@
+const {
+  calculateAudit,
+} = require("../services/auditService");
+
 const runAudit = async (req, res) => {
   try {
-    const { tools } = req.body;
+    const toolData = req.body.tools[0];
 
-    const result = {
-      currentCost: 1240,
-      savings: 420,
-      recommendations: [
-        {
-          tool: "ChatGPT Team",
-          action: "Downgrade to Plus",
-          save: "$120/year",
-        },
-        {
-          tool: "Cursor Business",
-          action: "Switch to Pro",
-          save: "$240/year",
-        },
-      ],
-    };
+    const result = calculateAudit(toolData);
 
     res.status(200).json({
       success: true,
