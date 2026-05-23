@@ -44,12 +44,18 @@ const calculateAudit = (toolData) => {
     });
   }
 
-  return {
-    currentCost,
-    savings,
-    annualWaste: savings * 12,
-    recommendations,
-  };
+ const efficiencyScore = Math.max(
+  100 - Math.floor((savings / currentCost) * 100),
+  52
+);
+
+return {
+  currentCost,
+  savings,
+  annualWaste: savings * 12,
+  efficiencyScore,
+  recommendations,
+};
 };
 
 module.exports = {
