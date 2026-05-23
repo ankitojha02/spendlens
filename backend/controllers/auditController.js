@@ -2,7 +2,7 @@ const pricing = require("../data/pricingData");
 
 const generateAudit = async (req, res) => {
   try {
-    const { tools } = req.body;
+   const { tools, teamSize, useCase } = req.body;
 
     if (!tools || tools.length === 0) {
       return res.status(400).json({
@@ -28,6 +28,20 @@ const generateAudit = async (req, res) => {
       let savings = 0;
 
       /* RULES */
+
+      // Coding teams overspending on ChatGPT
+if (
+  useCase === "coding" &&
+  item.tool === "ChatGPT" &&
+  spend > 100
+) {
+  savings = Math.round(spend * 0.25);
+
+  recommendedCost = spend - savings;
+
+  action =
+    "Developer-focused AI tools like Cursor or GitHub Copilot may provide better coding ROI at lower cost.";
+}
 
       // Team too small for Team/Business
       if (

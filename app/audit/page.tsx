@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AuditPage() {
   const router = useRouter();
@@ -16,6 +16,40 @@ export default function AuditPage() {
 ]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+
+  const [teamSize, setTeamSize] = useState("");
+const [useCase, setUseCase] = useState("coding");
+
+useEffect(() => {
+  const savedData = localStorage.getItem("spendlens-audit");
+
+  if (savedData) {
+    const parsed = JSON.parse(savedData);
+
+    if (parsed.tools) {
+      setTools(parsed.tools);
+    }
+
+    if (parsed.teamSize) {
+      setTeamSize(parsed.teamSize);
+    }
+
+    if (parsed.useCase) {
+      setUseCase(parsed.useCase);
+    }
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem(
+    "spendlens-audit",
+    JSON.stringify({
+      tools,
+      teamSize,
+      useCase,
+    })
+  );
+}, [tools, teamSize, useCase]);
 
   const updateTool = (
   index: number,
@@ -160,6 +194,44 @@ const addTool = () => {
             YOUR STACK
           </h2>
         </div>
+
+
+<div className="mb-10 grid gap-6 lg:grid-cols-2">
+
+  {/* Team Size */}
+  <div>
+    <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+      Total Team Size
+    </label>
+
+    <input
+      type="number"
+      value={teamSize}
+      onChange={(e) => setTeamSize(e.target.value)}
+      placeholder="10"
+      className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+    />
+  </div>
+
+  {/* Primary Use Case */}
+  <div>
+    <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+      Primary Use Case
+    </label>
+
+    <select
+      value={useCase}
+      onChange={(e) => setUseCase(e.target.value)}
+      className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+    >
+      <option value="coding">Coding</option>
+      <option value="writing">Writing</option>
+      <option value="research">Research</option>
+      <option value="data">Data</option>
+      <option value="mixed">Mixed</option>
+    </select>
+  </div>
+</div>
 
         {/* Form */}
        <div className="space-y-10">
