@@ -27,68 +27,77 @@ const generateAudit = async (req, res) => {
       let action = "Current plan looks optimized.";
       let savings = 0;
 
-      /* RULES */
-
-      // Coding teams overspending on ChatGPT
+   /* RULE 1 — Small team overpaying */
 if (
+  seats <= 2 &&
+  ["Team", "Business"].includes(item.plan)
+) {
+  recommendedPlan = "Pro";
+
+  recommendedCost = 20 * seats;
+
+  savings = spend - recommendedCost;
+
+  action =
+    `Downgrade from ${item.plan} to Pro. Small teams rarely need advanced collaboration features.`;
+}
+
+/* RULE 2 — Enterprise oversized */
+else if (
+  seats < 10 &&
+  item.plan === "Enterprise"
+) {
+  recommendedPlan = "Team";
+
+  recommendedCost = 30 * seats;
+
+  savings = spend - recommendedCost;
+
+  action =
+    "Enterprise pricing appears oversized for your current team size.";
+}
+
+/* RULE 3 — Expensive API usage */
+else if (
+  item.plan === "API Direct" &&
+  spend > 500
+) {
+  recommendedCost = spend * 0.7;
+
+  savings = spend - recommendedCost;
+
+  action =
+    "Implement caching, usage caps, or startup credits to reduce API burn.";
+}
+
+/* RULE 4 — Coding teams using expensive ChatGPT setup */
+else if (
   useCase === "coding" &&
   item.tool === "ChatGPT" &&
   spend > 100
 ) {
-  savings = Math.round(spend * 0.25);
+  recommendedCost = spend * 0.75;
 
-  recommendedCost = spend - savings;
+  savings = spend - recommendedCost;
 
   action =
-    "Developer-focused AI tools like Cursor or GitHub Copilot may provide better coding ROI at lower cost.";
+    "Developer-focused tools like Cursor or GitHub Copilot may provide better coding ROI at lower cost.";
 }
 
-      // Team too small for Team/Business
-      if (
-        seats <= 2 &&
-        ["Team", "Business"].includes(item.plan)
-      ) {
-        recommendedPlan = "Pro";
-        recommendedCost = 20 * seats;
+/* RULE 5 — Large teams not using enterprise */
+else if (
+  seats >= 20 &&
+  ["Pro", "Plus"].includes(item.plan)
+) {
+  action =
+    "Your team may benefit from centralized billing and admin controls available in enterprise plans.";
+}
 
-        savings = spend - recommendedCost;
-
-        action = `Downgrade from ${item.plan} to Pro. Small teams usually don't need collaborative enterprise features.`;
-      }
-
-      // Enterprise too expensive
-      else if (
-        seats < 10 &&
-        item.plan === "Enterprise"
-      ) {
-        recommendedPlan = "Team";
-
-        recommendedCost = 30 * seats;
-
-        savings = spend - recommendedCost;
-
-        action =
-          "Enterprise plan appears oversized for your current team size.";
-      }
-
-      // Huge API spend
-      else if (
-        item.plan === "API Direct" &&
-        spend > 500
-      ) {
-        recommendedCost = spend * 0.7;
-
-        savings = spend - recommendedCost;
-
-        action =
-          "Consider usage optimization, caching, or startup credits to reduce API costs.";
-      }
-
-      // Already optimized
-      else {
-        action =
-          "Your current setup appears cost efficient for your usage.";
-      }
+/* DEFAULT */
+else {
+  action =
+    "Your current setup appears cost efficient for your usage.";
+}
 
       if (savings > 0) {
         totalSavings += savings;
