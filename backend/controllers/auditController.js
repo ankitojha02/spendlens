@@ -1,3 +1,5 @@
+const { generateSummary } = require("../services/aiSummary");
+
 const pricing = require("../data/pricingData");
 
 const generateAudit = async (req, res) => {
@@ -116,6 +118,13 @@ else {
 
     const annualWaste = totalSavings * 12;
 
+    const summary = await generateSummary({
+  currentCost,
+  savings: Math.round(totalSavings),
+  annualWaste: Math.round(annualWaste),
+  efficiencyScore,
+});
+
     let efficiencyScore = "A";
 
     if (totalSavings > 1000) {
@@ -135,6 +144,7 @@ else {
         annualWaste: Math.round(annualWaste),
         efficiencyScore,
         recommendations,
+        summary,
       },
     });
   } catch (error) {

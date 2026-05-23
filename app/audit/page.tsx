@@ -406,6 +406,22 @@ const addTool = () => {
       </div>
     </div>
 
+{/* AI Summary */}
+<div className="mt-10 border border-black bg-black p-8 text-white">
+
+  <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
+    AI GENERATED SUMMARY
+  </p>
+
+  <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
+    STRATEGIC INSIGHTS
+  </h3>
+
+  <p className="mt-6 max-w-4xl text-lg leading-relaxed text-gray-300">
+    {result.summary}
+  </p>
+</div>
+
     {/* Recommendations */}
     <div className="mt-10 border border-black p-8">
 
