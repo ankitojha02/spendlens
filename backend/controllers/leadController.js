@@ -1,23 +1,45 @@
+const supabase = require("../config/supabaseClient");
+
 const saveLead = async (req, res) => {
   try {
     const {
       email,
       company,
       role,
-      teamSize,
+      team_size,
     } = req.body;
 
-    console.log("NEW LEAD:");
-    console.log({
-      email,
-      company,
-      role,
-      teamSize,
-    });
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
 
-    return res.status(200).json({
+    const { data, error } = await supabase
+      .from("leads")
+      .insert([
+        {
+          email,
+          company,
+          role,
+          team_size,
+        },
+      ]);
+
+    if (error) {
+      console.log(error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to save lead",
+      });
+    }
+
+    return res.status(201).json({
       success: true,
       message: "Lead saved successfully",
+      data,
     });
 
   } catch (error) {

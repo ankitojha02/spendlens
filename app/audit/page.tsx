@@ -6,69 +6,7 @@ import { useState, useEffect } from "react";
 
 export default function AuditPage() {
   const router = useRouter();
- const [tools, setTools] = useState([
-  {
-    tool: "ChatGPT",
-    plan: "Plus",
-    spend: "",
-    seats: "",
-  },
-]);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-
-  const [teamSize, setTeamSize] = useState("");
-const [useCase, setUseCase] = useState("coding");
-
-useEffect(() => {
-  const savedData = localStorage.getItem("spendlens-audit");
-
-  if (savedData) {
-    const parsed = JSON.parse(savedData);
-
-    if (parsed.tools) {
-      setTools(parsed.tools);
-    }
-
-    if (parsed.teamSize) {
-      setTeamSize(parsed.teamSize);
-    }
-
-    if (parsed.useCase) {
-      setUseCase(parsed.useCase);
-    }
-  }
-}, []);
-
-useEffect(() => {
-  localStorage.setItem(
-    "spendlens-audit",
-    JSON.stringify({
-      tools,
-      teamSize,
-      useCase,
-    })
-  );
-}, [tools, teamSize, useCase]);
-
-  const updateTool = (
-  index: number,
-  field: string,
-  value: string
-) => {
-  const updated = [...tools];
-
-  updated[index] = {
-    ...updated[index],
-    [field]: value,
-  };
-
-  setTools(updated);
-};
-
-const addTool = () => {
-  setTools([
-    ...tools,
+  const [tools, setTools] = useState([
     {
       tool: "ChatGPT",
       plan: "Plus",
@@ -76,7 +14,71 @@ const addTool = () => {
       seats: "",
     },
   ]);
-};
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+
+  const [teamSize, setTeamSize] = useState("");
+  const [useCase, setUseCase] = useState("coding");
+
+  const [email, setEmail] = useState("");
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
+  const [savingLead, setSavingLead] = useState(false);
+  const [leadTeamSize, setLeadTeamSize] = useState("");
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("spendlens-audit");
+
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+
+      if (parsed.tools) {
+        setTools(parsed.tools);
+      }
+
+      if (parsed.teamSize) {
+        setTeamSize(parsed.teamSize);
+      }
+
+      if (parsed.useCase) {
+        setUseCase(parsed.useCase);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "spendlens-audit",
+      JSON.stringify({
+        tools,
+        teamSize,
+        useCase,
+      }),
+    );
+  }, [tools, teamSize, useCase]);
+
+  const updateTool = (index: number, field: string, value: string) => {
+    const updated = [...tools];
+
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+
+    setTools(updated);
+  };
+
+  const addTool = () => {
+    setTools([
+      ...tools,
+      {
+        tool: "ChatGPT",
+        plan: "Plus",
+        spend: "",
+        seats: "",
+      },
+    ]);
+  };
 
   const generateAudit = async () => {
     try {
@@ -90,15 +92,12 @@ const addTool = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-           tools,
-           teamSize,
-           useCase,
+            tools,
+            teamSize,
+            useCase,
           }),
         },
       );
-
-
-
 
       const data = await response.json();
 
@@ -109,6 +108,43 @@ const addTool = () => {
       setLoading(false);
     }
   };
+
+  const saveLead = async () => {
+  try {
+    setSavingLead(true);
+
+    const response = await fetch(
+      "https://spendlens-frdn.onrender.com/api/leads",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          company,
+          role,
+          team_size: teamSize,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Audit report saved successfully!");
+    } else {
+      alert("Failed to save lead");
+    }
+
+  } catch (error) {
+    console.log(error);
+
+    alert("Something went wrong");
+  } finally {
+    setSavingLead(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-[#f5f1eb] text-black">
@@ -197,154 +233,137 @@ const addTool = () => {
           </h2>
         </div>
 
+        <div className="mb-10 grid gap-6 lg:grid-cols-2">
+          {/* Team Size */}
+          <div>
+            <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+              Total Team Size
+            </label>
 
-<div className="mb-10 grid gap-6 lg:grid-cols-2">
+            <input
+              type="number"
+              value={teamSize}
+              onChange={(e) => setTeamSize(e.target.value)}
+              placeholder="10"
+              className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+            />
+          </div>
 
-  {/* Team Size */}
-  <div>
-    <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-      Total Team Size
-    </label>
+          {/* Primary Use Case */}
+          <div>
+            <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+              Primary Use Case
+            </label>
 
-    <input
-      type="number"
-      value={teamSize}
-      onChange={(e) => setTeamSize(e.target.value)}
-      placeholder="10"
-      className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-    />
-  </div>
-
-  {/* Primary Use Case */}
-  <div>
-    <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-      Primary Use Case
-    </label>
-
-    <select
-      value={useCase}
-      onChange={(e) => setUseCase(e.target.value)}
-      className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-    >
-      <option value="coding">Coding</option>
-      <option value="writing">Writing</option>
-      <option value="research">Research</option>
-      <option value="data">Data</option>
-      <option value="mixed">Mixed</option>
-    </select>
-  </div>
-</div>
+            <select
+              value={useCase}
+              onChange={(e) => setUseCase(e.target.value)}
+              className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+            >
+              <option value="coding">Coding</option>
+              <option value="writing">Writing</option>
+              <option value="research">Research</option>
+              <option value="data">Data</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </div>
+        </div>
 
         {/* Form */}
-       <div className="space-y-10">
+        <div className="space-y-10">
+          {tools.map((item, index) => (
+            <div key={index} className="border border-black p-6">
+              <div className="mb-6 flex items-center justify-between">
+                <h3 className="bebas text-3xl tracking-[0.08em]">
+                  TOOL {index + 1}
+                </h3>
+              </div>
 
-  {tools.map((item, index) => (
-    <div
-      key={index}
-      className="border border-black p-6"
-    >
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Tool */}
+                <div>
+                  <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+                    AI Tool
+                  </label>
 
-      <div className="mb-6 flex items-center justify-between">
+                  <select
+                    value={item.tool}
+                    onChange={(e) => updateTool(index, "tool", e.target.value)}
+                    className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+                  >
+                    <option>ChatGPT</option>
+                    <option>Claude</option>
+                    <option>Cursor</option>
+                    <option>GitHub Copilot</option>
+                    <option>Gemini</option>
+                    <option>Anthropic API</option>
+                    <option>OpenAI API</option>
+                    <option>v0</option>
+                  </select>
+                </div>
 
-        <h3 className="bebas text-3xl tracking-[0.08em]">
-          TOOL {index + 1}
-        </h3>
-      </div>
+                {/* Plan */}
+                <div>
+                  <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+                    Current Plan
+                  </label>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+                  <select
+                    value={item.plan}
+                    onChange={(e) => updateTool(index, "plan", e.target.value)}
+                    className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+                  >
+                    <option>Free</option>
+                    <option>Plus</option>
+                    <option>Pro</option>
+                    <option>Team</option>
+                    <option>Business</option>
+                    <option>Enterprise</option>
+                    <option>API Direct</option>
+                  </select>
+                </div>
 
-        {/* Tool */}
-        <div>
-          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-            AI Tool
-          </label>
+                {/* Spend */}
+                <div>
+                  <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+                    Monthly Spend
+                  </label>
 
-          <select
-            value={item.tool}
-            onChange={(e) =>
-              updateTool(index, "tool", e.target.value)
-            }
-            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+                  <input
+                    type="number"
+                    value={item.spend}
+                    onChange={(e) => updateTool(index, "spend", e.target.value)}
+                    placeholder="$200"
+                    className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+                  />
+                </div>
+
+                {/* Seats */}
+                <div>
+                  <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
+                    Team Seats
+                  </label>
+
+                  <input
+                    type="number"
+                    value={item.seats}
+                    onChange={(e) => updateTool(index, "seats", e.target.value)}
+                    placeholder="5"
+                    className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Add Tool */}
+          <button
+            onClick={addTool}
+            className="border border-black px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:bg-black hover:text-white"
           >
-            <option>ChatGPT</option>
-            <option>Claude</option>
-            <option>Cursor</option>
-            <option>GitHub Copilot</option>
-            <option>Gemini</option>
-            <option>Anthropic API</option>
-            <option>OpenAI API</option>
-            <option>v0</option>
-          </select>
+            + Add Tool
+          </button>
         </div>
-
-        {/* Plan */}
-        <div>
-          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-            Current Plan
-          </label>
-
-          <select
-            value={item.plan}
-            onChange={(e) =>
-              updateTool(index, "plan", e.target.value)
-            }
-            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-          >
-            <option>Free</option>
-            <option>Plus</option>
-            <option>Pro</option>
-            <option>Team</option>
-            <option>Business</option>
-            <option>Enterprise</option>
-            <option>API Direct</option>
-          </select>
-        </div>
-
-        {/* Spend */}
-        <div>
-          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-            Monthly Spend
-          </label>
-
-          <input
-            type="number"
-            value={item.spend}
-            onChange={(e) =>
-              updateTool(index, "spend", e.target.value)
-            }
-            placeholder="$200"
-            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-          />
-        </div>
-
-        {/* Seats */}
-        <div>
-          <label className="mb-3 block text-xs uppercase tracking-[0.2em] text-gray-500">
-            Team Seats
-          </label>
-
-          <input
-            type="number"
-            value={item.seats}
-            onChange={(e) =>
-              updateTool(index, "seats", e.target.value)
-            }
-            placeholder="5"
-            className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
-          />
-        </div>
-      </div>
-    </div>
-  ))}
-
-  {/* Add Tool */}
-  <button
-    onClick={addTool}
-    className="border border-black px-6 py-3 text-xs uppercase tracking-[0.25em] transition hover:bg-black hover:text-white"
-  >
-    + Add Tool
-  </button>
-</div>
         <button
           onClick={generateAudit}
           disabled={loading}
@@ -353,197 +372,178 @@ const addTool = () => {
           {loading ? "Generating..." : "Generate Audit"}
         </button>
 
-       {result && (
-  <div className="mt-16">
+        {result && (
+          <div className="mt-16">
+            {/* Top Stats */}
+            <div className="grid gap-6 lg:grid-cols-4">
+              {/* Current Cost */}
+              <div className="border border-black p-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+                  Current Cost
+                </p>
 
-    {/* Top Stats */}
-    <div className="grid gap-6 lg:grid-cols-4">
+                <h3 className="bebas mt-4 text-6xl">${result.currentCost}</h3>
+              </div>
 
-      {/* Current Cost */}
-      <div className="border border-black p-6">
+              {/* Savings */}
+              <div className="border border-black p-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+                  Potential Savings
+                </p>
 
-        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-          Current Cost
-        </p>
+                <h3 className="bebas mt-4 text-6xl text-green-600">
+                  ${result.savings}
+                </h3>
+              </div>
 
-        <h3 className="bebas mt-4 text-6xl">
-          ${result.currentCost}
-        </h3>
-      </div>
+              {/* Annual Waste */}
+              <div className="border border-black p-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+                  Annual Waste
+                </p>
 
-      {/* Savings */}
-      <div className="border border-black p-6">
+                <h3 className="bebas mt-4 text-6xl text-red-500">
+                  ${result.annualWaste}
+                </h3>
+              </div>
 
-        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-          Potential Savings
-        </p>
+              {/* Score */}
+              <div className="border border-black p-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+                  Efficiency Score
+                </p>
 
-        <h3 className="bebas mt-4 text-6xl text-green-600">
-          ${result.savings}
-        </h3>
-      </div>
+                <h3 className="bebas mt-4 text-6xl">
+                  {result.efficiencyScore}
+                </h3>
+              </div>
+            </div>
 
-      {/* Annual Waste */}
-      <div className="border border-black p-6">
+            {/* AI Summary */}
+            <div className="mt-10 border border-black bg-black p-8 text-white">
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
+                AI GENERATED SUMMARY
+              </p>
 
-        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-          Annual Waste
-        </p>
+              <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
+                STRATEGIC INSIGHTS
+              </h3>
 
-        <h3 className="bebas mt-4 text-6xl text-red-500">
-          ${result.annualWaste}
-        </h3>
-      </div>
+              <p className="mt-6 max-w-4xl text-lg leading-relaxed text-gray-300">
+                {result.summary}
+              </p>
+            </div>
 
-      {/* Score */}
-      <div className="border border-black p-6">
+            {/* Lead Capture */}
+            <div className="mt-10 border border-black bg-black p-8 text-white">
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
+                SAVE YOUR REPORT
+              </p>
 
-        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-          Efficiency Score
-        </p>
+              <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
+                GET FULL AUDIT
+              </h3>
 
-        <h3 className="bebas mt-4 text-6xl">
-          {result.efficiencyScore}
-        </h3>
-      </div>
-    </div>
+              <p className="mt-4 max-w-2xl text-gray-300">
+                Receive your audit summary, optimization recommendations, and
+                future savings alerts directly in your inbox.
+              </p>
 
-{/* AI Summary */}
-<div className="mt-10 border border-black bg-black p-8 text-white">
+              <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                placeholder="founder@company.com"
+                  className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+                />
 
-  <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
-    AI GENERATED SUMMARY
-  </p>
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Company Name (Optional)"
+                  className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+                />
 
-  <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
-    STRATEGIC INSIGHTS
-  </h3>
+                <input
+                  type="text"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  placeholder="Role (Optional)"
+                  className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+                />
 
-  <p className="mt-6 max-w-4xl text-lg leading-relaxed text-gray-300">
-    {result.summary}
-  </p>
-</div>
+                <input
+                  type="number"
+                  value={leadTeamSize}
+                  onChange={(e) => setLeadTeamSize(e.target.value)}
+                  placeholder="Team Size"
+                  className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+                />
+              </div>
 
+            <button
+  onClick={saveLead}
+  disabled={savingLead}
+  className="border border-white px-8 py-4 text-xs uppercase tracking-[0.25em] transition hover:bg-white hover:text-black disabled:opacity-50"
+>
+  {savingLead ? "Saving..." : "Save Audit Report"}
+</button>
 
-{/* Lead Capture */}
-<div className="mt-10 border border-black bg-black p-8 text-white">
+              {result.savings > 500 && (
+                <div className="mt-10 border border-green-500 p-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-green-400">
+                    HIGH SAVINGS DETECTED
+                  </p>
 
-  <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
-    SAVE YOUR REPORT
-  </p>
-
-  <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
-    GET FULL AUDIT
-  </h3>
-
-  <p className="mt-4 max-w-2xl text-gray-300">
-    Receive your audit summary, optimization recommendations,
-    and future savings alerts directly in your inbox.
-  </p>
-
-  <div className="mt-8 grid gap-6 lg:grid-cols-2">
-
-    <input
-      type="email"
-      placeholder="Email Address"
-      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
-    />
-
-    <input
-      type="text"
-      placeholder="Company Name (Optional)"
-      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
-    />
-
-    <input
-      type="text"
-      placeholder="Role (Optional)"
-      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
-    />
-
-    <input
-      type="number"
-      placeholder="Team Size"
-      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
-    />
-  </div>
-
-  <button
-    className="mt-8 border border-white px-8 py-4 text-xs uppercase tracking-[0.25em] transition hover:bg-white hover:text-black"
-  >
-    Save Audit Report
-  </button>
-
-  {result.savings > 500 && (
-    <div className="mt-10 border border-green-500 p-6">
-
-      <p className="text-xs uppercase tracking-[0.2em] text-green-400">
-        HIGH SAVINGS DETECTED
-      </p>
-
-      <h4 className="bebas mt-3 text-4xl">
-        BOOK CREDex CONSULTATION
-      </h4>
-
-      <p className="mt-3 text-gray-300">
-        Your stack may qualify for significant AI infrastructure
-        savings through discounted enterprise credits.
-      </p>
-
-      <button
-        className="mt-6 bg-green-500 px-6 py-3 text-xs uppercase tracking-[0.25em] text-black transition hover:opacity-80"
-      >
-        Book Consultation
-      </button>
-    </div>
-  )}
-</div>
-    {/* Recommendations */}
-    <div className="mt-10 border border-black p-8">
-
-      <p className="text-xs uppercase tracking-[0.25em] text-gray-500">
-        Optimization Recommendations
-      </p>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-
-        {result.recommendations.length > 0 ? (
-          result.recommendations.map(
-            (item: any, index: number) => (
-              <div
-                key={index}
-                className="border border-black p-6"
-              >
-
-                <div className="flex items-center justify-between">
-
-                  <h4 className="bebas text-3xl tracking-[0.08em]">
-                    {item.tool}
+                  <h4 className="bebas mt-3 text-4xl">
+                    BOOK CREDex CONSULTATION
                   </h4>
 
-                  <span className="text-green-600">
-                    {item.save}
-                  </span>
+                  <p className="mt-3 text-gray-300">
+                    Your stack may qualify for significant AI infrastructure
+                    savings through discounted enterprise credits.
+                  </p>
+
+                  <button className="mt-6 bg-green-500 px-6 py-3 text-xs uppercase tracking-[0.25em] text-black transition hover:opacity-80">
+                    Book Consultation
+                  </button>
                 </div>
+              )}
+            </div>
+            {/* Recommendations */}
+            <div className="mt-10 border border-black p-8">
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">
+                Optimization Recommendations
+              </p>
 
-                <p className="mt-4 text-gray-700">
-                  {item.action}
-                </p>
+              <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                {result.recommendations.length > 0 ? (
+                  result.recommendations.map((item: any, index: number) => (
+                    <div key={index} className="border border-black p-6">
+                      <div className="flex items-center justify-between">
+                        <h4 className="bebas text-3xl tracking-[0.08em]">
+                          {item.tool}
+                        </h4>
+
+                        <span className="text-green-600">{item.save}</span>
+                      </div>
+
+                      <p className="mt-4 text-gray-700">{item.action}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="border border-black p-6">
+                    <p className="text-lg">
+                      No major optimization opportunities found.
+                    </p>
+                  </div>
+                )}
               </div>
-            )
-          )
-        ) : (
-          <div className="border border-black p-6">
-
-            <p className="text-lg">
-              No major optimization opportunities found.
-            </p>
+            </div>
           </div>
         )}
-      </div>
-    </div>
-  </div>
-)}
       </section>
     </main>
   );
