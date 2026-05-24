@@ -111,15 +111,22 @@ recommendedCost =
     const optimized =
   totalSavings < 100;
 
-    let efficiencyScore = "A";
 
-    if (totalSavings > 1000) {
-      efficiencyScore = "D";
-    } else if (totalSavings > 500) {
-      efficiencyScore = "C";
-    } else if (totalSavings > 200) {
-      efficiencyScore = "B";
-    }
+const savingsPercentage =
+  currentCost > 0
+    ? (totalSavings / currentCost) * 100
+    : 0;
+
+let efficiencyScore = "A";
+
+if (savingsPercentage >= 50) {
+  efficiencyScore = "D";
+} else if (savingsPercentage >= 30) {
+  efficiencyScore = "C";
+} else if (savingsPercentage >= 15) {
+  efficiencyScore = "B";
+}
+   
 
     const summary = await generateSummary({
       currentCost,
