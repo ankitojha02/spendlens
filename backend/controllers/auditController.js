@@ -37,14 +37,14 @@ const generateAudit = async (req, res) => {
 
       /* RULE 1 — Small team overpaying */
       if (seats <= 2 && ["Team", "Business"].includes(item.plan)) {
-        recommendedPlan = "Pro";
+      recommendedPlan = "Plus";
 
-       recommendedCost =
-  pricing[item.tool]?.Pro * seats || spend;
+recommendedCost =
+  pricing[item.tool]?.Plus * seats || spend;
 
         savings = spend - recommendedCost;
 
-        action = `Downgrade from ${item.plan} to Pro. Small teams rarely need advanced collaboration features.`;
+        action = `Downgrade from ${item.plan} to Plus. Small teams rarely need advanced collaboration features.`;
       } else if (seats < 10 && item.plan === "Enterprise") {
         /* RULE 2 — Enterprise oversized */
         recommendedPlan = "Team";
@@ -82,19 +82,7 @@ const generateAudit = async (req, res) => {
 
         action =
           "Implement caching, usage caps, or startup credits to reduce API burn.";
-      } else if (
-        /* RULE 4 — Coding teams using expensive ChatGPT setup */
-        useCase === "coding" &&
-        item.tool === "ChatGPT" &&
-        spend > 100
-      ) {
-        recommendedCost = spend * 0.75;
-
-        savings = spend - recommendedCost;
-
-        action =
-          "Developer-focused tools like Cursor or GitHub Copilot may provide better coding ROI at lower cost.";
-      } else if (seats >= 20 && ["Pro", "Plus"].includes(item.plan)) {
+      }  else if (seats >= 20 && ["Pro", "Plus"].includes(item.plan)) {
         /* RULE 5 — Large teams not using enterprise */
         action =
           "Your team may benefit from centralized billing and admin controls available in enterprise plans.";

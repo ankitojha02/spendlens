@@ -3,19 +3,22 @@ const pricing = {
     Free: 0,
     Go: 5,
     Plus: 24,
-    Pro: 130,
+    Team: 30,
+Enterprise: 60,
   },
 
   Claude: {
     Free: 0,
     Pro: 20,
     Max: 100,
+    Team: 30,
+Enterprise: 60,
   },
 
   Cursor: {
     Hobby: 0,
     Pro: 20,
-    Teams: 40,
+    Team: 40,
   },
 
   "GitHub Copilot": {
