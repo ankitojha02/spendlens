@@ -13,11 +13,13 @@ async function getAudit(id: string) {
       return null;
     }
 
-    const data = await response.json();
+    const result = await response.json();
 
-    return data.data;
+    return result.data;
 
   } catch (error) {
+    console.log(error);
+
     return null;
   }
 }
@@ -25,10 +27,12 @@ async function getAudit(id: string) {
 export default async function PublicAuditPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
 
-  const audit = await getAudit(params.id);
+  const { id } = await params;
+
+  const audit = await getAudit(id);
 
   if (!audit) {
     return notFound();
@@ -122,7 +126,7 @@ export default async function PublicAuditPage({
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
 
-          {audit.recommendations.map(
+          {audit.recommendations?.map(
             (item: any, index: number) => (
               <div
                 key={index}
