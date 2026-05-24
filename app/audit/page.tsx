@@ -424,6 +424,80 @@ const addTool = () => {
   </p>
 </div>
 
+
+{/* Lead Capture */}
+<div className="mt-10 border border-black bg-black p-8 text-white">
+
+  <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
+    SAVE YOUR REPORT
+  </p>
+
+  <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
+    GET FULL AUDIT
+  </h3>
+
+  <p className="mt-4 max-w-2xl text-gray-300">
+    Receive your audit summary, optimization recommendations,
+    and future savings alerts directly in your inbox.
+  </p>
+
+  <div className="mt-8 grid gap-6 lg:grid-cols-2">
+
+    <input
+      type="email"
+      placeholder="Email Address"
+      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+    />
+
+    <input
+      type="text"
+      placeholder="Company Name (Optional)"
+      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+    />
+
+    <input
+      type="text"
+      placeholder="Role (Optional)"
+      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+    />
+
+    <input
+      type="number"
+      placeholder="Team Size"
+      className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
+    />
+  </div>
+
+  <button
+    className="mt-8 border border-white px-8 py-4 text-xs uppercase tracking-[0.25em] transition hover:bg-white hover:text-black"
+  >
+    Save Audit Report
+  </button>
+
+  {result.savings > 500 && (
+    <div className="mt-10 border border-green-500 p-6">
+
+      <p className="text-xs uppercase tracking-[0.2em] text-green-400">
+        HIGH SAVINGS DETECTED
+      </p>
+
+      <h4 className="bebas mt-3 text-4xl">
+        BOOK CREDex CONSULTATION
+      </h4>
+
+      <p className="mt-3 text-gray-300">
+        Your stack may qualify for significant AI infrastructure
+        savings through discounted enterprise credits.
+      </p>
+
+      <button
+        className="mt-6 bg-green-500 px-6 py-3 text-xs uppercase tracking-[0.25em] text-black transition hover:opacity-80"
+      >
+        Book Consultation
+      </button>
+    </div>
+  )}
+</div>
     {/* Recommendations */}
     <div className="mt-10 border border-black p-8">
 

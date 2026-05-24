@@ -16,8 +16,10 @@ app.get("/", (req, res) => {
 
 /* Routes */
 const auditRoutes = require("./routes/auditRoutes");
+const leadRoutes = require("./routes/leadRoutes");
 
 app.use("/api/audit", auditRoutes);
+app.use("/api/leads", leadRoutes);
 
 const PORT = process.env.PORT || 5000;
 
