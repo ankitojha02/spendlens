@@ -6,6 +6,8 @@ const supabase = require("../config/supabaseClient");
 
 const crypto = require("crypto");
 
+const { sendAuditEmail } = require("../services/emailService");
+
 const generateAudit = async (req, res) => {
   try {
     const { tools, teamSize, useCase } = req.body;

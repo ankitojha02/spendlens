@@ -120,12 +120,14 @@ export default function AuditPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email,
-          company,
-          role,
-          team_size: teamSize,
-        }),
+       body: JSON.stringify({
+  email,
+  company,
+  role,
+  team_size: teamSize,
+  savings: result.savings,
+  auditId: result.auditId,
+}),
       }
     );
 
