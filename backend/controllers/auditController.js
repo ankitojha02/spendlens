@@ -117,17 +117,18 @@ const generateAudit = async (req, res) => {
 
     const auditId = crypto.randomUUID().slice(0, 8);
 
-    await supabase.from("audits").insert([
-      {
-        audit_id: auditId,
-        tools,
-        current_cost: currentCost,
-        savings: Math.round(totalSavings),
-        annual_waste: Math.round(annualWaste),
-        efficiency_score: efficiencyScore,
-        summary,
-      },
-    ]);
+   await supabase.from("audits").insert([
+  {
+    audit_id: auditId,
+    tools,
+    currentCost,
+    savings: Math.round(totalSavings),
+    annualWaste: Math.round(annualWaste),
+    efficiencyScore,
+    recommendations,
+    summary,
+  },
+]);
     return res.status(200).json({
       success: true,
 
