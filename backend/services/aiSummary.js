@@ -1,7 +1,11 @@
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const genAI = new GoogleGenerativeAI(
+  process.env.GEMINI_API_KEY
+);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
 });
 
 const generateSummary = async ({
@@ -32,30 +36,16 @@ Rules:
 - No bullet points.
 `;
 
-    const response = await client.chat.completions.create({
-      model: "gpt-4.1-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert AI infrastructure financial analyst.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 180,
-    });
+    const result = await model.generateContent(prompt);
 
-    return response.choices[0].message.content;
+    const response = result.response.text();
+
+    return response;
 
   } catch (error) {
 
-    console.log("AI Summary Error:", error.message);
+    console.log("Gemini AI Error:", error.message);
 
-    // FALLBACK
     return `
 Your current AI tooling setup appears relatively cost efficient for your current team size and workflow patterns. While no major overspending risks were detected, continuing to monitor usage and vendor pricing changes may unlock future optimization opportunities.
 `;
