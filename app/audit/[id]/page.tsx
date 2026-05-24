@@ -37,62 +37,115 @@ export default async function PublicAuditPage({
   return (
     <main className="min-h-screen bg-[#f5f1eb] px-4 py-10 text-black sm:px-6 lg:px-10">
 
-      <div className="mx-auto max-w-6xl">
+      {/* Header */}
+      <div className="border border-black p-8">
 
-        <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
-          Public AI Spend Audit
+        <p className="text-xs uppercase tracking-[0.25em] text-gray-500">
+          PUBLIC AI SPEND AUDIT
         </p>
 
-        <h1 className="bebas mt-4 text-[4rem] leading-none tracking-[0.12em] sm:text-[7rem]">
-          SAVINGS
-          <br />
-          REPORT
+        <h1 className="bebas mt-4 text-6xl tracking-[0.1em]">
+          SPENDLENS REPORT
         </h1>
 
-        {/* Stats */}
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <p className="mt-4 max-w-2xl text-gray-700">
+          Anonymous public audit report generated using SpendLens AI cost optimization engine.
+        </p>
+      </div>
 
-          <div className="border border-black p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-              Current Cost
-            </p>
+      {/* Stats */}
+      <div className="mt-10 grid gap-6 lg:grid-cols-4">
 
-            <h2 className="bebas mt-4 text-6xl">
-              ${audit.current_cost}
-            </h2>
-          </div>
+        <div className="border border-black p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+            Current Cost
+          </p>
 
-          <div className="border border-black p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-              Monthly Savings
-            </p>
-
-            <h2 className="bebas mt-4 text-6xl text-green-600">
-              ${audit.savings}
-            </h2>
-          </div>
-
-          <div className="border border-black p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
-              Annual Waste
-            </p>
-
-            <h2 className="bebas mt-4 text-6xl text-red-500">
-              ${audit.annual_waste}
-            </h2>
-          </div>
+          <h2 className="bebas mt-4 text-6xl">
+            ${audit.currentCost}
+          </h2>
         </div>
 
-        {/* Summary */}
-        <div className="mt-10 border border-black bg-black p-8 text-white">
-
-          <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
-            AI GENERATED SUMMARY
+        <div className="border border-black p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+            Monthly Savings
           </p>
 
-          <p className="mt-6 text-lg leading-relaxed text-gray-300">
-            {audit.summary}
+          <h2 className="bebas mt-4 text-6xl text-green-600">
+            ${audit.savings}
+          </h2>
+        </div>
+
+        <div className="border border-black p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+            Annual Waste
           </p>
+
+          <h2 className="bebas mt-4 text-6xl text-red-500">
+            ${audit.annualWaste}
+          </h2>
+        </div>
+
+        <div className="border border-black p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+            Efficiency Score
+          </p>
+
+          <h2 className="bebas mt-4 text-6xl">
+            {audit.efficiencyScore}
+          </h2>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div className="mt-10 border border-black bg-black p-8 text-white">
+
+        <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
+          AI GENERATED SUMMARY
+        </p>
+
+        <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
+          STRATEGIC INSIGHTS
+        </h3>
+
+        <p className="mt-6 max-w-4xl text-lg leading-relaxed text-gray-300">
+          {audit.summary}
+        </p>
+      </div>
+
+      {/* Recommendations */}
+      <div className="mt-10 border border-black p-8">
+
+        <p className="text-xs uppercase tracking-[0.25em] text-gray-500">
+          OPTIMIZATION RECOMMENDATIONS
+        </p>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+
+          {audit.recommendations.map(
+            (item: any, index: number) => (
+              <div
+                key={index}
+                className="border border-black p-6"
+              >
+
+                <div className="flex items-center justify-between">
+
+                  <h4 className="bebas text-3xl tracking-[0.08em]">
+                    {item.tool}
+                  </h4>
+
+                  <span className="text-green-600">
+                    {item.save}
+                  </span>
+                </div>
+
+                <p className="mt-4 text-gray-700">
+                  {item.action}
+                </p>
+              </div>
+            )
+          )}
         </div>
       </div>
     </main>
