@@ -1,11 +1,7 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY
-);
-
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash-latest",
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 const generateSummary = async ({
@@ -36,11 +32,12 @@ Rules:
 - No bullet points.
 `;
 
-    const result = await model.generateContent(prompt);
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
 
-    const response = result.response.text();
-
-    return response;
+    return response.text;
 
   } catch (error) {
 
