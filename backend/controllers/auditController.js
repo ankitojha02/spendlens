@@ -39,7 +39,8 @@ const generateAudit = async (req, res) => {
       if (seats <= 2 && ["Team", "Business"].includes(item.plan)) {
         recommendedPlan = "Pro";
 
-        recommendedCost = 20 * seats;
+       recommendedCost =
+  pricing[item.tool]?.Pro * seats || spend;
 
         savings = spend - recommendedCost;
 
@@ -48,13 +49,32 @@ const generateAudit = async (req, res) => {
         /* RULE 2 — Enterprise oversized */
         recommendedPlan = "Team";
 
-        recommendedCost = 30 * seats;
+        recommendedCost =
+  pricing[item.tool]?.Team * seats || spend;
 
         savings = spend - recommendedCost;
 
         action =
           "Enterprise pricing appears oversized for your current team size.";
-      } else if (item.plan === "API Direct" && spend > 500) {
+
+      }
+      else if (
+  useCase === "coding" &&
+  item.tool === "ChatGPT" &&
+  spend > 50
+) {
+
+  recommendedPlan = "Cursor Pro";
+
+  recommendedCost = 20 * seats;
+
+  savings = spend - recommendedCost;
+
+  action =
+    "Cursor Pro may provide better coding-focused ROI compared to higher ChatGPT spend for engineering workflows.";
+}
+      
+      else if (item.plan === "API Direct" && spend > 500) {
         /* RULE 3 — Expensive API usage */
         recommendedCost = spend * 0.7;
 
@@ -99,6 +119,9 @@ const generateAudit = async (req, res) => {
     });
 
     const annualWaste = totalSavings * 12;
+
+    const optimized =
+  totalSavings < 100;
 
     let efficiencyScore = "A";
 

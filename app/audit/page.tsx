@@ -561,7 +561,11 @@ export default function AuditPage() {
                       <div className="flex items-center justify-between">
                         <h4 className="bebas text-3xl tracking-[0.08em]">
                           {item.tool}
+
                         </h4>
+                        <p className="mt-2 text-sm text-gray-500">
+  {item.currentPlan} → {item.recommendedPlan}
+</p>
 
                         <span className="text-green-600">{item.save}</span>
                       </div>

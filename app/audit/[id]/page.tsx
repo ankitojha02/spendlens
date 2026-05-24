@@ -139,6 +139,10 @@ export default async function PublicAuditPage({
                     {item.tool}
                   </h4>
 
+                  <p className="mt-2 text-sm text-gray-500">
+  {item.currentPlan} → {item.recommendedPlan}
+</p>
+
                   <span className="text-green-600">
                     {item.save}
                   </span>
