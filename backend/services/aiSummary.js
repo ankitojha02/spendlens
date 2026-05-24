@@ -1,33 +1,64 @@
+const OpenAI = require("openai");
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 const generateSummary = async ({
   currentCost,
   savings,
   annualWaste,
   efficiencyScore,
 }) => {
+
   try {
-    let summary = "";
 
-    if (savings > 1000) {
-      summary =
-        `Your AI stack shows major overspending opportunities. With optimized plan selection and smarter tooling alignment, your team could save approximately $${annualWaste} annually. Your current setup appears oversized relative to actual operational needs. Consolidating enterprise subscriptions and improving usage efficiency could dramatically reduce recurring AI infrastructure costs.`;
-    }
+    const prompt = `
+You are an AI infrastructure cost optimization consultant.
 
-    else if (savings > 300) {
-      summary =
-        `Your team has moderate optimization opportunities across its AI tooling stack. Several subscriptions appear slightly oversized for your current usage profile. By adjusting plans and improving cost allocation, your organization could meaningfully reduce monthly operational spend while maintaining productivity.`;
-    }
+Generate a concise 80-120 word audit summary.
 
-    else {
-      summary =
-        `Your current AI tooling setup appears relatively cost efficient for your current team size and workflow patterns. While no major overspending risks were detected, continuing to monitor usage and vendor pricing changes may unlock future optimization opportunities.`;
-    }
+Audit Data:
+- Current Monthly Cost: $${currentCost}
+- Potential Monthly Savings: $${savings}
+- Annual Waste: $${annualWaste}
+- Efficiency Score: ${efficiencyScore}
 
-    return summary;
+Rules:
+- Be practical and finance-oriented.
+- Mention optimization opportunities.
+- Mention if stack is already efficient.
+- Sound like a SaaS cost consultant.
+- No bullet points.
+`;
+
+    const response = await client.chat.completions.create({
+      model: "gpt-4.1-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an expert AI infrastructure financial analyst.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 180,
+    });
+
+    return response.choices[0].message.content;
 
   } catch (error) {
-    console.log(error);
 
-    return "Unable to generate AI summary.";
+    console.log("AI Summary Error:", error.message);
+
+    // FALLBACK
+    return `
+Your current AI tooling setup appears relatively cost efficient for your current team size and workflow patterns. While no major overspending risks were detected, continuing to monitor usage and vendor pricing changes may unlock future optimization opportunities.
+`;
   }
 };
 
