@@ -2,9 +2,13 @@ const { generateSummary } = require("../services/aiSummary");
 
 const pricing = require("../data/pricingData");
 
+const supabase = require("../config/supabaseClient");
+
+const crypto = require("crypto");
+
 const generateAudit = async (req, res) => {
   try {
-   const { tools, teamSize, useCase } = req.body;
+    const { tools, teamSize, useCase } = req.body;
 
     if (!tools || tools.length === 0) {
       return res.status(400).json({
@@ -29,77 +33,53 @@ const generateAudit = async (req, res) => {
       let action = "Current plan looks optimized.";
       let savings = 0;
 
-   /* RULE 1 — Small team overpaying */
-if (
-  seats <= 2 &&
-  ["Team", "Business"].includes(item.plan)
-) {
-  recommendedPlan = "Pro";
+      /* RULE 1 — Small team overpaying */
+      if (seats <= 2 && ["Team", "Business"].includes(item.plan)) {
+        recommendedPlan = "Pro";
 
-  recommendedCost = 20 * seats;
+        recommendedCost = 20 * seats;
 
-  savings = spend - recommendedCost;
+        savings = spend - recommendedCost;
 
-  action =
-    `Downgrade from ${item.plan} to Pro. Small teams rarely need advanced collaboration features.`;
-}
+        action = `Downgrade from ${item.plan} to Pro. Small teams rarely need advanced collaboration features.`;
+      } else if (seats < 10 && item.plan === "Enterprise") {
+        /* RULE 2 — Enterprise oversized */
+        recommendedPlan = "Team";
 
-/* RULE 2 — Enterprise oversized */
-else if (
-  seats < 10 &&
-  item.plan === "Enterprise"
-) {
-  recommendedPlan = "Team";
+        recommendedCost = 30 * seats;
 
-  recommendedCost = 30 * seats;
+        savings = spend - recommendedCost;
 
-  savings = spend - recommendedCost;
+        action =
+          "Enterprise pricing appears oversized for your current team size.";
+      } else if (item.plan === "API Direct" && spend > 500) {
+        /* RULE 3 — Expensive API usage */
+        recommendedCost = spend * 0.7;
 
-  action =
-    "Enterprise pricing appears oversized for your current team size.";
-}
+        savings = spend - recommendedCost;
 
-/* RULE 3 — Expensive API usage */
-else if (
-  item.plan === "API Direct" &&
-  spend > 500
-) {
-  recommendedCost = spend * 0.7;
+        action =
+          "Implement caching, usage caps, or startup credits to reduce API burn.";
+      } else if (
+        /* RULE 4 — Coding teams using expensive ChatGPT setup */
+        useCase === "coding" &&
+        item.tool === "ChatGPT" &&
+        spend > 100
+      ) {
+        recommendedCost = spend * 0.75;
 
-  savings = spend - recommendedCost;
+        savings = spend - recommendedCost;
 
-  action =
-    "Implement caching, usage caps, or startup credits to reduce API burn.";
-}
-
-/* RULE 4 — Coding teams using expensive ChatGPT setup */
-else if (
-  useCase === "coding" &&
-  item.tool === "ChatGPT" &&
-  spend > 100
-) {
-  recommendedCost = spend * 0.75;
-
-  savings = spend - recommendedCost;
-
-  action =
-    "Developer-focused tools like Cursor or GitHub Copilot may provide better coding ROI at lower cost.";
-}
-
-/* RULE 5 — Large teams not using enterprise */
-else if (
-  seats >= 20 &&
-  ["Pro", "Plus"].includes(item.plan)
-) {
-  action =
-    "Your team may benefit from centralized billing and admin controls available in enterprise plans.";
-}
-
-/* DEFAULT */
-else {
-  action =
-    "Your current setup appears cost efficient for your usage.";
-}
+        action =
+          "Developer-focused tools like Cursor or GitHub Copilot may provide better coding ROI at lower cost.";
+      } else if (seats >= 20 && ["Pro", "Plus"].includes(item.plan)) {
+        /* RULE 5 — Large teams not using enterprise */
+        action =
+          "Your team may benefit from centralized billing and admin controls available in enterprise plans.";
+      } else {
+        /* DEFAULT */
+        action = "Your current setup appears cost efficient for your usage.";
+      }
 
       if (savings > 0) {
         totalSavings += savings;
@@ -116,28 +96,43 @@ else {
       });
     });
 
-   const annualWaste = totalSavings * 12;
+    const annualWaste = totalSavings * 12;
 
-let efficiencyScore = "A";
+    let efficiencyScore = "A";
 
-if (totalSavings > 1000) {
-  efficiencyScore = "D";
-} else if (totalSavings > 500) {
-  efficiencyScore = "C";
-} else if (totalSavings > 200) {
-  efficiencyScore = "B";
-}
+    if (totalSavings > 1000) {
+      efficiencyScore = "D";
+    } else if (totalSavings > 500) {
+      efficiencyScore = "C";
+    } else if (totalSavings > 200) {
+      efficiencyScore = "B";
+    }
 
-const summary = await generateSummary({
-  currentCost,
-  savings: Math.round(totalSavings),
-  annualWaste: Math.round(annualWaste),
-  efficiencyScore,
-});
+    const summary = await generateSummary({
+      currentCost,
+      savings: Math.round(totalSavings),
+      annualWaste: Math.round(annualWaste),
+      efficiencyScore,
+    });
+
+    const auditId = crypto.randomUUID().slice(0, 8);
+
+    await supabase.from("audits").insert([
+      {
+        audit_id: auditId,
+        tools,
+        current_cost: currentCost,
+        savings: Math.round(totalSavings),
+        annual_waste: Math.round(annualWaste),
+        efficiency_score: efficiencyScore,
+        summary,
+      },
+    ]);
     return res.status(200).json({
       success: true,
 
       data: {
+        auditId,
         currentCost,
         savings: Math.round(totalSavings),
         annualWaste: Math.round(annualWaste),
@@ -156,6 +151,40 @@ const summary = await generateSummary({
   }
 };
 
+const getAuditById = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from("audits")
+      .select("*")
+      .eq("audit_id", id)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({
+        success: false,
+        message: "Audit not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
 module.exports = {
   generateAudit,
+  getAuditById,
 };

@@ -419,6 +419,40 @@ export default function AuditPage() {
               </div>
             </div>
 
+            {/* Shareable Audit URL */}
+<div className="mt-10 border border-black bg-white p-8">
+
+  <p className="text-xs uppercase tracking-[0.25em] text-gray-500">
+    Share Audit
+  </p>
+
+  <h3 className="bebas mt-4 text-5xl tracking-[0.08em]">
+    PUBLIC REPORT URL
+  </h3>
+
+  <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center">
+
+    <input
+      readOnly
+      value={`https://spendlens-delta.vercel.app/audit/${result.auditId}`}
+      className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
+    />
+
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(
+          `https://spendlens-delta.vercel.app/audit/${result.auditId}`
+        );
+
+        alert("Link copied!");
+      }}
+      className="border border-black px-6 py-4 text-xs uppercase tracking-[0.25em] transition hover:bg-black hover:text-white"
+    >
+      Copy Link
+    </button>
+  </div>
+</div>
+
             {/* AI Summary */}
             <div className="mt-10 border border-black bg-black p-8 text-white">
               <p className="text-xs uppercase tracking-[0.25em] text-gray-400">
