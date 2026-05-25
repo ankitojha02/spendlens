@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-
+import type { Metadata } from "next";
 async function getAudit(id: string) {
   try {
     const response = await fetch(
@@ -22,6 +22,57 @@ async function getAudit(id: string) {
 
     return null;
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+
+  const audit = await getAudit(params.id);
+
+  if (!audit) {
+    return {
+      title: "Audit Not Found",
+    };
+  }
+
+  const title = `SpendLens Audit — Save $${audit.savings}/month`;
+
+  const description = `
+AI spend audit showing potential savings of $${audit.savings}/month and annual waste of $${audit.annualWaste}.
+`;
+
+  return {
+    title,
+    description,
+
+    openGraph: {
+      title,
+      description,
+      url: `https://spendlens-delta.vercel.app/audit/${params.id}`,
+      siteName: "SpendLens",
+      images: [
+        {
+          url: "https://spendlens-delta.vercel.app/og-image.png",
+          width: 1200,
+          height: 630,
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [
+        "https://spendlens-delta.vercel.app/og-image.png",
+      ],
+    },
+  };
 }
 
 export default async function PublicAuditPage({
