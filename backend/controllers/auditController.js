@@ -6,8 +6,6 @@ const supabase = require("../config/supabaseClient");
 
 const crypto = require("crypto");
 
-const { sendAuditEmail } = require("../services/emailService");
-
 const getRetailCost = (tool, plan, seats) => {
   return pricing?.[tool]?.[plan] ? pricing[tool][plan] * seats : 0;
 };
@@ -32,7 +30,7 @@ const generateAudit = async (req, res) => {
       const spend = Number(item.spend) || 0;
       const seats = Number(item.seats) || 1;
 
-      const retailCost = getRetailCost(item.tool, item.plan, seats);
+      const retailCost = getRetailCost(item.tool, item.plan, seats) || spend;
 
       currentCost += spend;
 
@@ -57,7 +55,7 @@ const generateAudit = async (req, res) => {
         action =
           "Cursor Pro may deliver better engineering ROI for coding-heavy workflows.";
       } else if (
-      /*
+        /*
     RULE 1
     SMALL TEAM OVERPAYING
   */
@@ -81,8 +79,7 @@ const generateAudit = async (req, res) => {
         action =
           "Small teams rarely benefit from enterprise collaboration features.";
       } else if (item.plan === "Enterprise" && seats < 15) {
-
-      /*
+        /*
     RULE 2
     ENTERPRISE TOO EARLY
   */
@@ -103,13 +100,12 @@ const generateAudit = async (req, res) => {
             "Enterprise pricing appears oversized for your current team size.";
         }
       } else if (item.plan === "API Direct" && spend > 500) {
-
-      /*
+        /*
     RULE 3
     CODING USE CASE
   */
 
-      /*
+        /*
     RULE 4
     API OVERSPEND
   */
@@ -122,8 +118,7 @@ const generateAudit = async (req, res) => {
         action =
           "Caching, batching, and usage limits can significantly reduce API burn.";
       } else if (
-
-      /*
+        /*
     RULE 5
     LARGE TEAM ON INDIVIDUAL PLANS
   */
@@ -133,8 +128,7 @@ const generateAudit = async (req, res) => {
         action =
           "Centralized billing and admin controls may justify enterprise plans.";
       } else if (item.tool === "Cursor" && item.plan === "Team" && seats <= 3) {
-
-      /*
+        /*
     RULE 6
     CURSOR TEAM OVERPAYING
   */
@@ -146,45 +140,44 @@ const generateAudit = async (req, res) => {
 
         action =
           "Cursor Team is usually unnecessary for very small engineering teams.";
-      }
+      } else if (item.plan === "Free" && spend > 0) {
 
       /*
   RULE 7
   FREE PLAN BUT HIGH SPEND
 */
-if (
-  item.plan === "Free" &&
-  spend > 0
-) {
-  if (pricing[item.tool]?.Pro) {
-    recommendedPlan = "Pro";
-    recommendedCost = pricing[item.tool].Pro * seats;
-  } else if (pricing[item.tool]?.Plus) {
-    recommendedPlan = "Plus";
-    recommendedCost = pricing[item.tool].Plus * seats;
-  }
+        if (pricing[item.tool]?.Pro) {
+          recommendedPlan = "Pro";
+          recommendedCost = pricing[item.tool].Pro * seats;
+        } else if (pricing[item.tool]?.Plus) {
+          recommendedPlan = "Plus";
+          recommendedCost = pricing[item.tool].Plus * seats;
+        }
 
-  savings = spend - recommendedCost;
+        savings = spend - recommendedCost;
 
-  action =
-    "Your reported spend does not match a free-tier plan. A lower paid tier may better reflect actual usage.";
-}
-
-      if (savings < 0) {
-        savings = 0;
+        action =
+          "Your reported spend does not match a free-tier plan. A lower paid tier may better reflect actual usage.";
       }
+
+      savings = Math.max(0, Math.min(savings, spend));
 
       totalSavings += savings;
 
-      recommendations.push({
-        tool: item.tool,
-        currentPlan: item.plan,
-        recommendedPlan,
-        currentSpend: spend,
-        optimizedSpend: Math.round(recommendedCost),
-        save: `$${Math.round(savings)}/mo`,
-        action,
-      });
+     if (
+  savings > 0 ||
+  action !== "Your current setup appears cost efficient for your usage."
+) {
+  recommendations.push({
+    tool: item.tool,
+    currentPlan: item.plan,
+    recommendedPlan,
+    currentSpend: spend,
+    optimizedSpend: Math.round(recommendedCost),
+    save: `$${Math.round(savings)}/mo`,
+    action,
+  });
+}
     });
 
     const annualWaste = totalSavings * 12;
