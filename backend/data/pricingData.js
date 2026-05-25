@@ -1,10 +1,9 @@
 const pricing = {
   ChatGPT: {
     Free: 0,
-    Go: 5,
-    Plus: 24,
+    Plus: 20,
     Team: 30,
-Enterprise: 60,
+    Enterprise: 60,
   },
 
   Claude: {
@@ -12,18 +11,18 @@ Enterprise: 60,
     Pro: 20,
     Max: 100,
     Team: 30,
-Enterprise: 60,
+    Enterprise: 75,
   },
 
   Cursor: {
     Hobby: 0,
     Pro: 20,
     Team: 40,
+    Enterprise: 80,
   },
 
   "GitHub Copilot": {
-    Pro: 10,
-    "Pro+": 39,
+    Individual: 10,
     Business: 19,
     Enterprise: 39,
   },
@@ -31,6 +30,15 @@ Enterprise: 60,
   Gemini: {
     Pro: 20,
     Ultra: 250,
+    API: 100,
+  },
+
+  "OpenAI API": {
+    "API Direct": 500,
+  },
+
+  "Anthropic API": {
+    "API Direct": 500,
   },
 
   v0: {
@@ -39,6 +47,5 @@ Enterprise: 60,
     Team: 30,
   },
 };
-
 
 module.exports = pricing;

@@ -148,6 +148,24 @@ export default function AuditPage() {
   }
 };
 
+const planOptions: any = {
+  ChatGPT: ["Free", "Plus", "Team", "Enterprise", "API Direct"],
+
+  Claude: ["Free", "Pro", "Max", "Team", "Enterprise", "API Direct"],
+
+  Cursor: ["Hobby", "Pro", "Team", "Enterprise"],
+
+  "GitHub Copilot": ["Individual", "Business", "Enterprise"],
+
+  Gemini: ["Pro", "Ultra", "API"],
+
+  "OpenAI API": ["API Direct"],
+
+  "Anthropic API": ["API Direct"],
+
+  v0: ["Free", "Premium", "Team"],
+};
+
   return (
     <main className="min-h-screen bg-[#f5f1eb] text-black">
       {/* Navbar */}
@@ -315,13 +333,9 @@ export default function AuditPage() {
                     onChange={(e) => updateTool(index, "plan", e.target.value)}
                     className="w-full border border-black bg-transparent px-5 py-4 text-sm outline-none"
                   >
-                    <option>Free</option>
-                    <option>Plus</option>
-                    <option>Pro</option>
-                    <option>Team</option>
-                    <option>Business</option>
-                    <option>Enterprise</option>
-                    <option>API Direct</option>
+                   {planOptions[item.tool]?.map((plan: string) => (
+  <option key={plan}>{plan}</option>
+))}
                   </select>
                 </div>
 

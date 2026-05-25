@@ -25,108 +25,160 @@ const generateAudit = async (req, res) => {
     const recommendations = [];
 
     tools.forEach((item) => {
-      const spend = Number(item.spend) || 0;
-      const seats = Number(item.seats) || 1;
+  const spend = Number(item.spend) || 0;
+  const seats = Number(item.seats) || 1;
 
-      currentCost += spend;
+  currentCost += spend;
 
-      let recommendedPlan = item.plan;
-      let recommendedCost = spend;
-      let action = "Current plan looks optimized.";
-      let savings = 0;
+  let recommendedPlan = item.plan;
+  let recommendedCost = spend;
+  let savings = 0;
 
-      /* RULE 1 — Small team overpaying */
-      if (seats <= 2 && ["Team", "Business"].includes(item.plan)) {
+  let action =
+    "Your current setup appears cost efficient for your usage.";
+
+  /*
+    RULE 1
+    SMALL TEAM OVERPAYING
+  */
+  if (
+    seats <= 3 &&
+    ["Team", "Business", "Enterprise"].includes(item.plan)
+  ) {
+    if (pricing[item.tool]?.Pro) {
+      recommendedPlan = "Pro";
+      recommendedCost = pricing[item.tool].Pro * seats;
+    } else if (pricing[item.tool]?.Plus) {
       recommendedPlan = "Plus";
+      recommendedCost = pricing[item.tool].Plus * seats;
+    } else if (pricing[item.tool]?.Individual) {
+      recommendedPlan = "Individual";
+      recommendedCost = pricing[item.tool].Individual * seats;
+    }
 
-recommendedCost =
-  pricing[item.tool]?.Plus * seats || spend;
+    savings = spend - recommendedCost;
 
-        savings = spend - recommendedCost;
+    action =
+      "Small teams rarely benefit from enterprise collaboration features.";
+  }
 
-        action = `Downgrade from ${item.plan} to Plus. Small teams rarely need advanced collaboration features.`;
-      } else if (seats < 10 && item.plan === "Enterprise") {
-        /* RULE 2 — Enterprise oversized */
-        recommendedPlan = "Team";
+  /*
+    RULE 2
+    ENTERPRISE TOO EARLY
+  */
+  else if (item.plan === "Enterprise" && seats < 15) {
+    if (pricing[item.tool]?.Team) {
+      recommendedPlan = "Team";
+      recommendedCost = pricing[item.tool].Team * seats;
 
-        recommendedCost =
-  pricing[item.tool]?.Team * seats || spend;
+      savings = spend - recommendedCost;
 
-        savings = spend - recommendedCost;
+      action =
+        "Enterprise pricing appears oversized for your current team size.";
+    }
+  }
 
-        action =
-          "Enterprise pricing appears oversized for your current team size.";
+  /*
+    RULE 3
+    CODING USE CASE
+  */
+  else if (
+    useCase === "coding" &&
+    item.tool === "ChatGPT" &&
+    spend > 100
+  ) {
+    recommendedPlan = "Cursor Pro";
 
-      }
-      else if (
-  useCase === "coding" &&
-  item.tool === "ChatGPT" &&
-  spend > 50
-) {
+    recommendedCost = 20 * seats;
 
-  recommendedPlan = "Cursor Pro";
+    savings = spend - recommendedCost;
 
-  recommendedCost = 20 * seats;
+    action =
+      "Cursor Pro may deliver better engineering ROI for coding-heavy workflows.";
+  }
 
-  savings = spend - recommendedCost;
+  /*
+    RULE 4
+    API OVERSPEND
+  */
+  else if (
+    item.plan === "API Direct" &&
+    spend > 500
+  ) {
+    recommendedPlan = "Optimized API Usage";
 
-  action =
-    "Cursor Pro may provide better coding-focused ROI compared to higher ChatGPT spend for engineering workflows.";
-}
-      
-      else if (item.plan === "API Direct" && spend > 500) {
-        /* RULE 3 — Expensive API usage */
-        recommendedCost = spend * 0.7;
+    recommendedCost = Math.round(spend * 0.7);
 
-        savings = spend - recommendedCost;
+    savings = spend - recommendedCost;
 
-        action =
-          "Implement caching, usage caps, or startup credits to reduce API burn.";
-      }  else if (seats >= 20 && ["Pro", "Plus"].includes(item.plan)) {
-        /* RULE 5 — Large teams not using enterprise */
-        action =
-          "Your team may benefit from centralized billing and admin controls available in enterprise plans.";
-      } else {
-        /* DEFAULT */
-        action = "Your current setup appears cost efficient for your usage.";
-      }
+    action =
+      "Caching, batching, and usage limits can significantly reduce API burn.";
+  }
 
-      if (savings > 0) {
-        totalSavings += savings;
-      }
+  /*
+    RULE 5
+    LARGE TEAM ON INDIVIDUAL PLANS
+  */
+  else if (
+    seats >= 20 &&
+    ["Plus", "Pro", "Individual"].includes(item.plan)
+  ) {
+    action =
+      "Centralized billing and admin controls may justify enterprise plans.";
+  }
 
-      recommendations.push({
-        tool: item.tool,
-        currentPlan: item.plan,
-        recommendedPlan,
-        currentSpend: spend,
-        optimizedSpend: Math.round(recommendedCost),
-        save: `$${Math.round(savings)}/mo`,
-        action,
-      });
-    });
+  /*
+    RULE 6
+    CURSOR TEAM OVERPAYING
+  */
+  if (
+    item.tool === "Cursor" &&
+    item.plan === "Team" &&
+    seats <= 3
+  ) {
+    recommendedPlan = "Pro";
+
+    recommendedCost = 20 * seats;
+
+    savings = spend - recommendedCost;
+
+    action =
+      "Cursor Team is usually unnecessary for very small engineering teams.";
+  }
+
+  if (savings < 0) {
+    savings = 0;
+  }
+
+  totalSavings += savings;
+
+  recommendations.push({
+    tool: item.tool,
+    currentPlan: item.plan,
+    recommendedPlan,
+    currentSpend: spend,
+    optimizedSpend: Math.round(recommendedCost),
+    save: `$${Math.round(savings)}/mo`,
+    action,
+  });
+});
 
     const annualWaste = totalSavings * 12;
 
-    const optimized =
-  totalSavings < 100;
+    const optimized = totalSavings < 100;
 
+    const savingsPercentage =
+      currentCost > 0 ? (totalSavings / currentCost) * 100 : 0;
 
-const savingsPercentage =
-  currentCost > 0
-    ? (totalSavings / currentCost) * 100
-    : 0;
+    let efficiencyScore = "A";
 
-let efficiencyScore = "A";
-
-if (savingsPercentage >= 50) {
-  efficiencyScore = "D";
-} else if (savingsPercentage >= 30) {
-  efficiencyScore = "C";
-} else if (savingsPercentage >= 15) {
-  efficiencyScore = "B";
-}
-   
+    if (savingsPercentage >= 50) {
+      efficiencyScore = "D";
+    } else if (savingsPercentage >= 30) {
+      efficiencyScore = "C";
+    } else if (savingsPercentage >= 15) {
+      efficiencyScore = "B";
+    }
 
     const summary = await generateSummary({
       currentCost,
@@ -137,18 +189,18 @@ if (savingsPercentage >= 50) {
 
     const auditId = crypto.randomUUID().slice(0, 8);
 
-   await supabase.from("audits").insert([
-  {
-    audit_id: auditId,
-    tools,
-    currentCost,
-    savings: Math.round(totalSavings),
-    annualWaste: Math.round(annualWaste),
-    efficiencyScore,
-    recommendations,
-    summary,
-  },
-]);
+    await supabase.from("audits").insert([
+      {
+        audit_id: auditId,
+        tools,
+        currentCost,
+        savings: Math.round(totalSavings),
+        annualWaste: Math.round(annualWaste),
+        efficiencyScore,
+        recommendations,
+        summary,
+      },
+    ]);
     return res.status(200).json({
       success: true,
 
@@ -174,7 +226,6 @@ if (savingsPercentage >= 50) {
 
 const getAuditById = async (req, res) => {
   try {
-
     const { id } = req.params;
 
     const { data, error } = await supabase
@@ -194,7 +245,6 @@ const getAuditById = async (req, res) => {
       success: true,
       data,
     });
-
   } catch (error) {
     console.log(error);
 
