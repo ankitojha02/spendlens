@@ -14,23 +14,8 @@ https://spendlens-delta.vercel.app
 Backend API:
 https://spendlens-frdn.onrender.com
 
----
 
-# Screenshots
 
-## Landing Page
-(Add screenshot here)
-
-## Audit Form
-(Add screenshot here)
-
-## Audit Results
-(Add screenshot here)
-
-## Public Audit Report
-(Add screenshot here)
-
----
 
 # Features
 
