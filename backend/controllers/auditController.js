@@ -54,6 +54,7 @@ const generateAudit = async (req, res) => {
        if (
     useCase === "coding" &&
     item.tool === "ChatGPT" &&
+    ["Plus", "Team", "Enterprise", "API Direct"].includes(item.plan) &&
     spend > 100
   ) {
     recommendedPlan = "Cursor Pro";
