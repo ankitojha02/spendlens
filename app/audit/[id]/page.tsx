@@ -55,7 +55,7 @@ AI spend audit showing potential savings of $${audit.savings}/month and annual w
       siteName: "SpendLens",
       images: [
         {
-          url: "https://spendlens-delta.vercel.app/og-image.png",
+          url: `https://spendlens-delta.vercel.app/api/og?savings=${audit.savings}&score=${audit.efficiencyScore}`,
           width: 1200,
           height: 630,
         },
@@ -68,9 +68,9 @@ AI spend audit showing potential savings of $${audit.savings}/month and annual w
       card: "summary_large_image",
       title,
       description,
-      images: [
-        "https://spendlens-delta.vercel.app/og-image.png",
-      ],
+     images: [
+  `https://spendlens-delta.vercel.app/api/og?savings=${audit.savings}&score=${audit.efficiencyScore}`,
+],
     },
   };
 }
