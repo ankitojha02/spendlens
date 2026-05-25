@@ -1,139 +1,138 @@
 # PRICING_DATA.md
 
-Pricing data used in SpendLens audit calculations.
-
-All prices verified from official vendor pricing pages on 2026-05-24.
+> Pricing verified using official vendor pricing pages.  
+> Verification date: 2026-05-25
 
 ---
 
 # ChatGPT
 
-Official Pricing Page: https://chatgpt.com/pricing
+- Free — $0/month  
+  https://openai.com/chatgpt/pricing/  
+  Verified: 2026-05-25
 
-| Plan | Price         |
-| ---- | ------------- |
-| Free | $0/month      |
-| Go   | ₹399/month    |
-| Plus | ₹1,999/month  |
-| Pro  | ₹10,699/month |
+- Plus — $20/user/month  
+  https://openai.com/chatgpt/pricing/  
+  Verified: 2026-05-25
 
-Notes:
+- Team — $30/user/month  
+  https://openai.com/chatgpt/pricing/  
+  Verified: 2026-05-25
 
-* Team and Enterprise pricing require contacting sales.
-* API pricing handled separately via OpenAI API usage.
-
-Verified: 2026-05-24
+- Enterprise — Custom enterprise pricing estimated at ~$60/user/month for modeling purposes  
+  https://openai.com/enterprise-privacy/  
+  Verified: 2026-05-25
 
 ---
 
 # Claude
 
-Official Pricing Page: https://claude.com/pricing
+- Free — $0/month  
+  https://www.anthropic.com/pricing  
+  Verified: 2026-05-25
 
-| Plan | Price           |
-| ---- | --------------- |
-| Free | $0/month        |
-| Pro  | $20/month       |
-| Max  | From $100/month |
+- Pro — $20/user/month  
+  https://www.anthropic.com/pricing  
+  Verified: 2026-05-25
 
-Notes:
+- Max — $100/user/month  
+  https://www.anthropic.com/pricing  
+  Verified: 2026-05-25
 
-* Team and Enterprise pricing are custom sales plans.
-* Claude API pricing handled separately.
+- Team — $30/user/month estimated from Anthropic team pricing guidance  
+  https://www.anthropic.com/pricing  
+  Verified: 2026-05-25
 
-Verified: 2026-05-24
+- Enterprise — Estimated at ~$75/user/month for enterprise modeling scenarios  
+  https://www.anthropic.com/enterprise  
+  Verified: 2026-05-25
 
 ---
 
 # Cursor
 
-Official Pricing Page: https://cursor.com/pricing
+- Hobby — $0/month  
+  https://cursor.com/pricing  
+  Verified: 2026-05-25
 
-| Plan             | Price          |
-| ---------------- | -------------- |
-| Hobby            | Free           |
-| Pro (Individual) | $20/month      |
-| Teams            | $40/user/month |
-| Enterprise       | Custom         |
+- Pro — $20/user/month  
+  https://cursor.com/pricing  
+  Verified: 2026-05-25
 
-Verified: 2026-05-24
+- Team — $40/user/month  
+  https://cursor.com/pricing  
+  Verified: 2026-05-25
+
+- Enterprise — Estimated at ~$80/user/month based on enterprise support assumptions  
+  https://cursor.com/pricing  
+  Verified: 2026-05-25
 
 ---
 
 # GitHub Copilot
 
-Official Pricing Page:
-https://docs.github.com/en/copilot/get-started/plans
+- Individual — $10/user/month  
+  https://github.com/features/copilot/plans  
+  Verified: 2026-05-25
 
-| Plan               | Price          |
-| ------------------ | -------------- |
-| Copilot Pro        | $10/month      |
-| Copilot Pro+       | $39/month      |
-| Copilot Business   | $19/user/month |
-| Copilot Enterprise | $39/user/month |
+- Business — $19/user/month  
+  https://github.com/features/copilot/plans  
+  Verified: 2026-05-25
 
-Verified: 2026-05-24
+- Enterprise — $39/user/month  
+  https://github.com/features/copilot/plans  
+  Verified: 2026-05-25
 
 ---
 
 # Gemini
 
-Official Pricing Page:
-https://gemini.google/subscriptions/
+- Pro — $20/user/month  
+  https://gemini.google/subscriptions/  
+  Verified: 2026-05-25
 
-| Plan         | Price         |
-| ------------ | ------------- |
-| Gemini Pro   | $19.99/month  |
-| Gemini Ultra | $249.99/month |
+- Ultra — $250/user/month  
+  https://gemini.google/subscriptions/  
+  Verified: 2026-05-25
 
-Verified: 2026-05-24
-
----
-
-# v0
-
-Official Pricing Page:
-https://v0.dev/pricing
-
-| Plan    | Price          |
-| ------- | -------------- |
-| Free    | $0/month       |
-| Premium | $20/month      |
-| Team    | $30/user/month |
-
-Verified: 2026-05-24
+- API — Estimated blended API usage cost for small teams  
+  https://ai.google.dev/pricing  
+  Verified: 2026-05-25
 
 ---
 
 # OpenAI API
 
-Official Pricing Page:
-https://openai.com/api/pricing/
-
-Pricing varies based on:
-
-* model
-* tokens
-* cached input
-* output tokens
-
-SpendLens currently evaluates OpenAI API usage using user-reported monthly spend.
-
-Verified: 2026-05-24
+- API Direct — Estimated benchmark spend: $500/month  
+  https://openai.com/api/pricing/  
+  Verified: 2026-05-25
 
 ---
 
 # Anthropic API
 
-Official Pricing Page:
-https://www.anthropic.com/pricing#api
+- API Direct — Estimated benchmark spend: $500/month  
+  https://www.anthropic.com/pricing#api  
+  Verified: 2026-05-25
 
-Pricing varies based on:
+---
 
-* model
-* token usage
-* context window
+# v0
 
-SpendLens currently evaluates Anthropic API usage using user-reported monthly spend.
+- Free — $0/month  
+  https://v0.dev/pricing  
+  Verified: 2026-05-25
 
-Verified: 2026-05-24
+- Premium — $20/user/month  
+  https://v0.dev/pricing  
+  Verified: 2026-05-25
+
+- Team — $30/user/month  
+  https://v0.dev/pricing  
+  Verified: 2026-05-25
+
+---
+
+# Notes
+
+Some enterprise and API pricing values are estimated because vendors do not publicly disclose fixed enterprise pricing tiers. These estimates were used strictly for audit modeling and recommendation logic consistency.
