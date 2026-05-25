@@ -18,10 +18,10 @@ export default function Home() {
 
         {/* Desktop Nav */}
         <div className="hidden items-center gap-8 text-sm font-medium lg:flex">
-          <a href="#">AUDIT</a>
+          {/* <a href="#">AUDIT</a>
           <a href="#">SAVINGS</a>
           <a href="#">PRICING</a>
-          <a href="#">ABOUT</a>
+          <a href="#">ABOUT</a> */}
         </div>
 
       <button
@@ -138,7 +138,7 @@ export default function Home() {
 
             </p>
 
-            <button className="mt-8 w-fit border border-black px-6 py-3 text-xs uppercase tracking-[0.2em] transition hover:bg-black hover:text-white sm:px-8 sm:py-4 sm:text-sm">
+            <button  onClick={() => router.push("/audit")} className="mt-8 w-fit border border-black px-6 py-3 text-xs uppercase tracking-[0.2em] transition hover:bg-black hover:text-white sm:px-8 sm:py-4 sm:text-sm">
               Explore Audits
             </button>
           </div>
