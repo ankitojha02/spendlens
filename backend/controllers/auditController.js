@@ -9,9 +9,7 @@ const crypto = require("crypto");
 const { sendAuditEmail } = require("../services/emailService");
 
 const getRetailCost = (tool, plan, seats) => {
-  return pricing?.[tool]?.[plan]
-    ? pricing[tool][plan] * seats
-    : 0;
+  return pricing?.[tool]?.[plan] ? pricing[tool][plan] * seats : 0;
 };
 
 const generateAudit = async (req, res) => {
@@ -31,176 +29,165 @@ const generateAudit = async (req, res) => {
     const recommendations = [];
 
     tools.forEach((item) => {
-  const spend = Number(item.spend) || 0;
-  const seats = Number(item.seats) || 1;
+      const spend = Number(item.spend) || 0;
+      const seats = Number(item.seats) || 1;
 
-  const retailCost = getRetailCost(
-  item.tool,
-  item.plan,
-  seats
-);
+      const retailCost = getRetailCost(item.tool, item.plan, seats);
 
-  currentCost += spend;
+      currentCost += spend;
 
-  let recommendedPlan = item.plan;
-  let recommendedCost = spend;
-  let savings = 0;
+      let recommendedPlan = item.plan;
+      let recommendedCost = spend;
+      let savings = 0;
 
-  let action =
-    "Your current setup appears cost efficient for your usage.";
+      let action = "Your current setup appears cost efficient for your usage.";
 
+      if (
+        useCase === "coding" &&
+        item.tool === "ChatGPT" &&
+        ["Plus", "Team", "Enterprise", "API Direct"].includes(item.plan) &&
+        spend > 100
+      ) {
+        recommendedPlan = "Cursor Pro";
 
+        recommendedCost = 20 * seats;
 
-       if (
-    useCase === "coding" &&
-    item.tool === "ChatGPT" &&
-    ["Plus", "Team", "Enterprise", "API Direct"].includes(item.plan) &&
-    spend > 100
-  ) {
-    recommendedPlan = "Cursor Pro";
+        savings = spend - recommendedCost;
 
-    recommendedCost = 20 * seats;
-
-    savings = spend - recommendedCost;
-
-    action =
-      "Cursor Pro may deliver better engineering ROI for coding-heavy workflows.";
-  }
-  /*
+        action =
+          "Cursor Pro may deliver better engineering ROI for coding-heavy workflows.";
+      } else if (
+      /*
     RULE 1
     SMALL TEAM OVERPAYING
   */
-  else if (
-    seats <= 3 && spend > retailCost &&
-    ["Team", "Business", "Enterprise"].includes(item.plan)
-  ) {
-    if (pricing[item.tool]?.Pro) {
-      recommendedPlan = "Pro";
-      recommendedCost = pricing[item.tool].Pro * seats;
-    } else if (pricing[item.tool]?.Plus) {
-      recommendedPlan = "Plus";
-      recommendedCost = pricing[item.tool].Plus * seats;
-    } else if (pricing[item.tool]?.Individual) {
-      recommendedPlan = "Individual";
-      recommendedCost = pricing[item.tool].Individual * seats;
-    }
+        seats <= 3 &&
+        spend > retailCost &&
+        ["Team", "Business", "Enterprise"].includes(item.plan)
+      ) {
+        if (pricing[item.tool]?.Pro) {
+          recommendedPlan = "Pro";
+          recommendedCost = pricing[item.tool].Pro * seats;
+        } else if (pricing[item.tool]?.Plus) {
+          recommendedPlan = "Plus";
+          recommendedCost = pricing[item.tool].Plus * seats;
+        } else if (pricing[item.tool]?.Individual) {
+          recommendedPlan = "Individual";
+          recommendedCost = pricing[item.tool].Individual * seats;
+        }
 
-    savings = spend - recommendedCost;
+        savings = spend - recommendedCost;
 
-    action =
-      "Small teams rarely benefit from enterprise collaboration features.";
-  }
+        action =
+          "Small teams rarely benefit from enterprise collaboration features.";
+      } else if (item.plan === "Enterprise" && seats < 15) {
 
-  /*
+      /*
     RULE 2
     ENTERPRISE TOO EARLY
   */
-else if (
-  item.plan === "Enterprise" &&
-  seats < 15
-) {
+        if (pricing[item.tool]?.Team) {
+          recommendedPlan = "Team";
 
-  if (pricing[item.tool]?.Team) {
+          recommendedCost = pricing[item.tool].Team * seats;
+        } else if (pricing[item.tool]?.Business) {
+          recommendedPlan = "Business";
 
-    recommendedPlan = "Team";
+          recommendedCost = pricing[item.tool].Business * seats;
+        }
 
-    recommendedCost =
-      pricing[item.tool].Team * seats;
+        if (recommendedCost < spend) {
+          savings = spend - recommendedCost;
 
-  } else if (
-    pricing[item.tool]?.Business
-  ) {
+          action =
+            "Enterprise pricing appears oversized for your current team size.";
+        }
+      } else if (item.plan === "API Direct" && spend > 500) {
 
-    recommendedPlan = "Business";
-
-    recommendedCost =
-      pricing[item.tool].Business * seats;
-  }
-
-  if (recommendedCost < spend) {
-
-    savings = spend - recommendedCost;
-
-    action =
-      "Enterprise pricing appears oversized for your current team size.";
-  }
-}
-
-  /*
+      /*
     RULE 3
     CODING USE CASE
   */
 
-
-  /*
+      /*
     RULE 4
     API OVERSPEND
   */
-  else if (
-    item.plan === "API Direct" &&
-    spend > 500
-  ) {
-    recommendedPlan = "Optimized API Usage";
+        recommendedPlan = "Optimized API Usage";
 
-    recommendedCost = Math.round(spend * 0.7);
+        recommendedCost = Math.round(spend * 0.7);
 
-    savings = spend - recommendedCost;
+        savings = spend - recommendedCost;
 
-    action =
-      "Caching, batching, and usage limits can significantly reduce API burn.";
-  }
+        action =
+          "Caching, batching, and usage limits can significantly reduce API burn.";
+      } else if (
 
-  /*
+      /*
     RULE 5
     LARGE TEAM ON INDIVIDUAL PLANS
   */
-  else if (
-    seats >= 20 &&
-    ["Plus", "Pro", "Individual"].includes(item.plan)
-  ) {
-    action =
-      "Centralized billing and admin controls may justify enterprise plans.";
-  }
+        seats >= 20 &&
+        ["Plus", "Pro", "Individual"].includes(item.plan)
+      ) {
+        action =
+          "Centralized billing and admin controls may justify enterprise plans.";
+      } else if (item.tool === "Cursor" && item.plan === "Team" && seats <= 3) {
 
-  /*
+      /*
     RULE 6
     CURSOR TEAM OVERPAYING
   */
-  else if (
-    item.tool === "Cursor" &&
-    item.plan === "Team" &&
-    seats <= 3
-  ) {
+        recommendedPlan = "Pro";
+
+        recommendedCost = 20 * seats;
+
+        savings = spend - recommendedCost;
+
+        action =
+          "Cursor Team is usually unnecessary for very small engineering teams.";
+      }
+
+      /*
+  RULE 7
+  FREE PLAN BUT HIGH SPEND
+*/
+if (
+  item.plan === "Free" &&
+  spend > 0
+) {
+  if (pricing[item.tool]?.Pro) {
     recommendedPlan = "Pro";
-
-    recommendedCost = 20 * seats;
-
-    savings = spend - recommendedCost;
-
-    action =
-      "Cursor Team is usually unnecessary for very small engineering teams.";
+    recommendedCost = pricing[item.tool].Pro * seats;
+  } else if (pricing[item.tool]?.Plus) {
+    recommendedPlan = "Plus";
+    recommendedCost = pricing[item.tool].Plus * seats;
   }
 
-  if (savings < 0) {
-    savings = 0;
-  }
+  savings = spend - recommendedCost;
 
-  totalSavings += savings;
+  action =
+    "Your reported spend does not match a free-tier plan. A lower paid tier may better reflect actual usage.";
+}
 
-  recommendations.push({
-    tool: item.tool,
-    currentPlan: item.plan,
-    recommendedPlan,
-    currentSpend: spend,
-    optimizedSpend: Math.round(recommendedCost),
-    save: `$${Math.round(savings)}/mo`,
-    action,
-  });
-});
+      if (savings < 0) {
+        savings = 0;
+      }
+
+      totalSavings += savings;
+
+      recommendations.push({
+        tool: item.tool,
+        currentPlan: item.plan,
+        recommendedPlan,
+        currentSpend: spend,
+        optimizedSpend: Math.round(recommendedCost),
+        save: `$${Math.round(savings)}/mo`,
+        action,
+      });
+    });
 
     const annualWaste = totalSavings * 12;
-
-  
 
     const savingsPercentage =
       currentCost > 0 ? (totalSavings / currentCost) * 100 : 0;
