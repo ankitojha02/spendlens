@@ -8,6 +8,12 @@ const crypto = require("crypto");
 
 const { sendAuditEmail } = require("../services/emailService");
 
+const getRetailCost = (tool, plan, seats) => {
+  return pricing?.[tool]?.[plan]
+    ? pricing[tool][plan] * seats
+    : 0;
+};
+
 const generateAudit = async (req, res) => {
   try {
     const { tools, teamSize, useCase } = req.body;
@@ -28,6 +34,12 @@ const generateAudit = async (req, res) => {
   const spend = Number(item.spend) || 0;
   const seats = Number(item.seats) || 1;
 
+  const retailCost = getRetailCost(
+  item.tool,
+  item.plan,
+  seats
+);
+
   currentCost += spend;
 
   let recommendedPlan = item.plan;
@@ -37,12 +49,28 @@ const generateAudit = async (req, res) => {
   let action =
     "Your current setup appears cost efficient for your usage.";
 
+
+
+       if (
+    useCase === "coding" &&
+    item.tool === "ChatGPT" &&
+    spend > 100
+  ) {
+    recommendedPlan = "Cursor Pro";
+
+    recommendedCost = 20 * seats;
+
+    savings = spend - recommendedCost;
+
+    action =
+      "Cursor Pro may deliver better engineering ROI for coding-heavy workflows.";
+  }
   /*
     RULE 1
     SMALL TEAM OVERPAYING
   */
-  if (
-    seats <= 3 &&
+  else if (
+    seats <= 3 && spend > retailCost &&
     ["Team", "Business", "Enterprise"].includes(item.plan)
   ) {
     if (pricing[item.tool]?.Pro) {
@@ -66,36 +94,42 @@ const generateAudit = async (req, res) => {
     RULE 2
     ENTERPRISE TOO EARLY
   */
-  else if (item.plan === "Enterprise" && seats < 15) {
-    if (pricing[item.tool]?.Team) {
-      recommendedPlan = "Team";
-      recommendedCost = pricing[item.tool].Team * seats;
+else if (
+  item.plan === "Enterprise" &&
+  seats < 15
+) {
 
-      savings = spend - recommendedCost;
+  if (pricing[item.tool]?.Team) {
 
-      action =
-        "Enterprise pricing appears oversized for your current team size.";
-    }
+    recommendedPlan = "Team";
+
+    recommendedCost =
+      pricing[item.tool].Team * seats;
+
+  } else if (
+    pricing[item.tool]?.Business
+  ) {
+
+    recommendedPlan = "Business";
+
+    recommendedCost =
+      pricing[item.tool].Business * seats;
   }
+
+  if (recommendedCost < spend) {
+
+    savings = spend - recommendedCost;
+
+    action =
+      "Enterprise pricing appears oversized for your current team size.";
+  }
+}
 
   /*
     RULE 3
     CODING USE CASE
   */
-  else if (
-    useCase === "coding" &&
-    item.tool === "ChatGPT" &&
-    spend > 100
-  ) {
-    recommendedPlan = "Cursor Pro";
 
-    recommendedCost = 20 * seats;
-
-    savings = spend - recommendedCost;
-
-    action =
-      "Cursor Pro may deliver better engineering ROI for coding-heavy workflows.";
-  }
 
   /*
     RULE 4
@@ -131,7 +165,7 @@ const generateAudit = async (req, res) => {
     RULE 6
     CURSOR TEAM OVERPAYING
   */
-  if (
+  else if (
     item.tool === "Cursor" &&
     item.plan === "Team" &&
     seats <= 3
@@ -165,7 +199,7 @@ const generateAudit = async (req, res) => {
 
     const annualWaste = totalSavings * 12;
 
-    const optimized = totalSavings < 100;
+  
 
     const savingsPercentage =
       currentCost > 0 ? (totalSavings / currentCost) * 100 : 0;
