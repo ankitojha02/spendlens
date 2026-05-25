@@ -24,6 +24,8 @@ export default function AuditPage() {
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
   const [savingLead, setSavingLead] = useState(false);
+
+  const [website, setWebsite] = useState("");
   const [leadTeamSize, setLeadTeamSize] = useState("");
 
   useEffect(() => {
@@ -127,6 +129,7 @@ export default function AuditPage() {
   team_size: teamSize,
   savings: result.savings,
   auditId: result.auditId,
+    website,
 }),
       }
     );
@@ -531,6 +534,15 @@ const planOptions: any = {
                   placeholder="Team Size"
                   className="border border-white bg-transparent px-5 py-4 text-sm outline-none"
                 />
+
+                <input
+  type="text"
+  value={website}
+  onChange={(e) => setWebsite(e.target.value)}
+  className="hidden"
+  autoComplete="off"
+  tabIndex={-1}
+/>
               </div>
 
             <button

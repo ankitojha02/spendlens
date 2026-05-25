@@ -2,7 +2,7 @@ const supabase = require("../config/supabaseClient");
 const { sendAuditEmail } = require("../services/emailService");
 const saveLead = async (req, res) => {
   try {
-    const { email, company, role, team_size, savings, auditId } = req.body;
+    const { email, website, company, role, team_size, savings, auditId } = req.body;
 
     if (!email) {
       return res.status(400).json({
@@ -10,6 +10,13 @@ const saveLead = async (req, res) => {
         message: "Email is required",
       });
     }
+
+    if (website) {
+  return res.status(400).json({
+    success: false,
+    message: "Spam detected",
+  });
+}
 
    const { data, error } = await supabase
   .from("leads")
