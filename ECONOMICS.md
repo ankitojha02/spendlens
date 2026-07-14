@@ -127,9 +127,6 @@ Reason:
 - founder audiences already discuss AI tooling costs
 - strong virality potential with screenshots
 
-Risk:
-- audience fatigue
-- inconsistent distribution
 
 ---
 
