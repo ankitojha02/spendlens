@@ -5,10 +5,7 @@
 SpendLens is not targeting “all startups.” The ideal early user is:
 
 ```txt
-Engineering Manager or Technical Founder
-at a seed to Series A startup
-with 5–40 employees
-actively paying for multiple AI tools.
+
 ```
 
 These teams usually:
