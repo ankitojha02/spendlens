@@ -4,8 +4,6 @@
 
 SpendLens includes automated tests focused on validating the audit engine logic and savings calculation behavior.
 
-The tests ensure that core recommendation rules remain predictable, explainable, and financially defensible.
-
 ---
 
 # Test Runner
