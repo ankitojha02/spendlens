@@ -124,7 +124,7 @@ Ensures that high overspending audits receive lower efficiency grades.
 
 # Why These Tests Matter
 
-The audit engine is the core business logic of SpendLens.
+
 
 Incorrect savings calculations would:
 - reduce trust
