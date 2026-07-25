@@ -17,7 +17,7 @@
 
 - Team — $30/user/month  
   https://openai.com/chatgpt/pricing/  
-  Verified: 2026-05-25
+ 
 
 - Enterprise — Custom enterprise pricing estimated at ~$60/user/month for modeling purposes  
   https://openai.com/enterprise-privacy/  
