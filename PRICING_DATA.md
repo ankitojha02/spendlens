@@ -39,9 +39,7 @@
   https://www.anthropic.com/pricing  
   Verified: 2026-05-25
 
-- Team — $30/user/month estimated from Anthropic team pricing guidance  
-  https://www.anthropic.com/pricing  
-  Verified: 2026-05-25
+
 
 - Enterprise — Estimated at ~$75/user/month for enterprise modeling scenarios  
   https://www.anthropic.com/enterprise  
