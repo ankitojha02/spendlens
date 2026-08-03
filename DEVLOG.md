@@ -7,8 +7,7 @@
 **What I did:**  
 Started project setup for SpendLens using Next.js frontend and Express backend. Designed the initial UI direction and created the first version of the audit form. Researched pricing structures for ChatGPT, Claude, Cursor, Gemini, and GitHub Copilot. Planned overall application architecture and database schema.
 
-**What I learned:**  
-I learned how fragmented AI pricing models are across vendors. Enterprise pricing is often intentionally vague, which makes financial comparison tools harder to build accurately.
+
 
 **Blockers / what I'm stuck on:**  
 Determining how aggressive the audit recommendations should be without sounding unrealistic or misleading.
