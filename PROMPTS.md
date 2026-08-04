@@ -46,7 +46,7 @@ I intentionally avoided:
 - hype language
 - excessive technical jargon
 - aggressive optimization claims
-- hallucinated recommendations
+
 
 The summary should feel like feedback from a SaaS procurement consultant rather than a chatbot.
 
