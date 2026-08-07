@@ -23,7 +23,7 @@ $300–$5,000/month on AI tools
 because:
 - the savings are meaningful
 - the buying process is still fast
-- founders personally feel infrastructure costs
+
 
 ---
 
